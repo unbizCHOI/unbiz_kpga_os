@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unbiz.api.mapper.AdmSubMapper">
+    <select id="selectSubGroupMarker" parameterType="Map" resultType="Map">
+        /**selectSubGroupMarker*/
+        SELECT
+            t1.game_id          gameId
+             ,t1.marker_id      markerId
+             ,t1.marker_name    markerName
+             ,t1.birth_date     birthDate
+             ,t1.r1     ,t1.r2      ,t1.r3
+             ,t1.r4     ,t1.r5      ,t1.r6
+             ,t1.`master`
+        FROM kpga.t_group_marker t1
+        WHERE t1.game_id = #{gameId}
+        AND t1.r${roundNo} IS NOT NULL;
+    </select>
+    <select id="selectSubTrack3dCourse"  parameterType="Map" resultType="Map">
+        /**selectSubGroupMarker*/
+        SELECT
+            t2.game_id                      gameId
+            ,t2.region_group_course_id      regionGroupCourseId
+            ,t2.game_subgroup_code          gameSubgroupCode
+            ,t2.course_id                   courseId
+            ,t2.round_no                    roundNo
+            ,t2.hole_no                     holeNo
+        FROM kpga.track3d_course_info t2
+        WHERE t2.game_id =  #{gameId}
+        AND t2.round_no = #{roundNo}
+        ORDER BY t2.hole_no
+    </select>
+
+
+    <delete id="deletePrepare" parameterType="Map">
+        /**deletePrepare*/
+        /**조마커 코스삭제*/
+        DELETE FROM kpga.track3d_course_info WHERE game_id = #{gameId};
+        DELETE FROM kpga.t_group_marker WHERE game_id = #{gameId};
+    </delete>
+    <insert id="insertTrack3dCourse" parameterType="Map">
+        /**insertTrack3dCourse*/
+        /**코스정보 삭제 생성*/
+        INSERT INTO kpga.track3d_course_info (
+            game_id,region_group_course_id,game_subgroup_code,course_id,round_no
+            ,hole_no,tshot_y,tshot_x,hole_cup_y,hole_cup_x,hazard,ob,reg_dt )
+        SELECT
+            t1.game_id
+             ,t1.region_group_course_id
+             ,t1.game_subgroup_code
+             ,t1.course_id
+             ,#{roundNo} round_no
+             ,t2.hole_no
+             ,'37.576575092026516'
+             ,'126.97737549011862'
+             ,'37.576575092026516'
+             ,'126.97737549011862'
+             ,1
+             ,1
+             ,NOW()
+        FROM (
+                 SELECT #{gameId} game_id, 1 hole_no UNION ALL    SELECT #{gameId} game_id, 10 hole_no UNION ALL
+                 SELECT #{gameId} game_id, 2 hole_no UNION ALL    SELECT #{gameId} game_id, 11 hole_no UNION ALL
+                 SELECT #{gameId} game_id, 3 hole_no UNION ALL    SELECT #{gameId} game_id, 12 hole_no UNION ALL
+                 SELECT #{gameId} game_id, 4 hole_no UNION ALL    SELECT #{gameId} game_id, 13 hole_no UNION ALL
+                 SELECT #{gameId} game_id, 5 hole_no UNION ALL    SELECT #{gameId} game_id, 14 hole_no UNION ALL
+                 SELECT #{gameId} game_id, 6 hole_no UNION ALL    SELECT #{gameId} game_id, 15 hole_no UNION ALL
+                 SELECT #{gameId} game_id, 7 hole_no UNION ALL    SELECT #{gameId} game_id, 16 hole_no UNION ALL
+                 SELECT #{gameId} game_id, 8 hole_no UNION ALL    SELECT #{gameId} game_id, 17 hole_no UNION ALL
+                 SELECT #{gameId} game_id, 9 hole_no UNION ALL    SELECT #{gameId} game_id, 18 hole_no
+             ) t2
+                 LEFT OUTER JOIN  kpga_db.game_course t1 ON t2.game_id = t1.game_id ;
+    </insert>
+
+    <insert id="insertGroupMarker" >
+        /**insertGroupMarker*/
+        /**조마커생성*/
+        SET @STDDATE = (
+            SELECT tt1.round_date FROM kpga_db.game_round tt1
+            WHERE tt1.game_id = #{gameId} AND tt1.round_no =  #{roundNo}) ;
+
+        INSERT INTO kpga.t_group_marker (game_id, marker_id, marker_name, birth_date, r${roundNo} ,`master`)
+        SELECT
+            t1.game_id
+             ,t1.exp_group_no
+             ,t1.exp_group_no
+             ,@STDDATE
+             ,t1.exp_group_no
+             ,'0'
+        FROM kpga_db.game_round_starttime t1
+        WHERE t1.game_id = #{gameId}
+          AND t1.round_no = #{roundNo}
+        UNION ALL
+        SELECT #{gameId} ,100 ,'관리자', @STDDATE, '99' ,'1' FROM DUAL;
+    </insert>
+
+    <insert id="insertTrack3dScore" parameterType="Map">
+        /* insertTrack3dScore */
+        /* track3d_score_info 스코어 삽입 */
+        INSERT INTO kpga.track3d_score_info(
+             game_id , region_group_course_id , game_subgroup_code , round_no , start_time_id
+           , course_id , member_id , current_hole_no , status , score_${holeNo})
+        VALUES (
+            #{gameId} , #{regionGroupCourseId} , #{gameSubgroupCode} , #{roundNo} , #{startTimeId}
+            , #{courseId} , #{memberId} , #{holeNo} , 'ing' , #{score}
+        ) ON DUPLICATE KEY UPDATE score_${holeNo} = values(score_${holeNo})
+    </insert>
+
+    <update id="updateCallSpPutScore" parameterType="Map">
+        /* updateCallSpPutScore */
+        /* 저장 프로시저 호출 */
+        call kpga.sp_put_score_test( #{gameId}, #{roundNo}, #{courseId}, #{holeNo}, #{memberId}, #{userId} );
+    </update>
+</mapper>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{thymeleaf/layout/default}">
+<th:block layout:fragment="css">
+</th:block>
+<th:block layout:fragment="script">
+    <script type="text/javascript">
+        let app = '';
+        let SECOND = 1000;
+        $(document).ready(function () {
+            const pagePath = "/outer/leaderboard";
+            app = new Vue({
+                el: "#app",
+                data: function () {
+                    return {
+                        list : {
+                        },
+                    }
+                },
+                created: function () {
+                    const self = this;
+                    self.getLog();
+                },
+                methods: {
+                    getLog : function(holeNo, info) {
+                        //let resp = doGetAjax('https://api.kpga.co.kr/track3d/game.tf?gameId=202311000001M');
+
+                        //doAjax('/tester/log',{id : "" })
+
+                    },
+                }
+            });
+        });
+    </script>
+</th:block>
+</head>
+<body class="sidebar-mini layout-fixed tt" layout:fragment="content">
+<div class="wrapper" id="app">
+
+
+</div>
+</body>
+</html>

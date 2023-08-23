@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{thymeleaf/layout/default}">
+<th:block layout:fragment="css">
+    <style>
+        * { font-family: 'Noto Sans KR', sans-serif; margin: 0; padding: 0; outline: none; box-sizing: border-box; }
+        ul, ol { list-style: none; }
+        .Wrap { padding: 5px; }
+        .exWrap { overflow: hidden; padding: 5px; background: #ededed;}
+        .exWrap li {float: left;margin-right: 10px;}
+        .tableWrap { width: 100%; }
+        .tableWrap tr th { text-align: Center; font-size: 16px; padding: 10px 6px; border: 1px solid #1e5b50; background: #06493d; color: #fff; }
+        .tableWrap tr td { text-align: Center; font-size: 0; border: 1px solid #ddd; }
+        .groupWrap { vertical-align: top; font-size:16px; text-align: center;  display: inline-block; background: #fff; padding: 5px;border-radius: 10px; }
+        .groupWrapEnd { vertical-align: top; font-size:20px; text-align: center; display: inline-block; background: #fff; padding: 5px; border-radius: 10px; }
+        .groupWrap>span { font-weight: 700; display: block; }
+        .groupWrapEnd>span { font-weight: 700; display: block; }
+        .groupWrap:first-child { margin-left: 0; }
+        .groupWrap:nth-child(2n + 1) { margin-left: 0; }
+        .playerName span { display: block; line-height: 20px; font-weight: 500; }
+        .topLiSapn{border: 2px solid rgb(166, 134, 63); padding: 2px 8px;}
+        @media ( max-width : 760px) { }
+    </style>
+</th:block>
+<th:block layout:fragment="script">
+    <script type="text/javascript">
+        let app = '';
+        let SECOND = 1000;
+        $(document).ready(function () {
+            app = new Vue({
+                el: "#app",
+                data: function () {
+                    return {
+                        total : 0,
+                        list : { },
+                        players : [
+                            {playerMemberId : '00046656', playerName : '강태영', sponsor : '(우성종합건설)'}
+                            ,{playerMemberId : '00046194', playerName : '고군택', sponsor : '(대보건설)'}
+                            ,{playerMemberId : '00005984', playerName : '권성열', sponsor : '(BRIC)'}
+                            ,{playerMemberId : '00056307', playerName : '김근우', sponsor : '(BC카드)'}
+                            ,{playerMemberId : '00026266', playerName : '김기환', sponsor : '(볼빅)'}
+                            ,{playerMemberId : '00049768', playerName : '김동민', sponsor : '(NH농협은행)'}
+                            ,{playerMemberId : '00044874', playerName : '김민규', sponsor : '(CJ)'}
+                            ,{playerMemberId : '00007510', playerName : '김민수', sponsor : '(볼빅)'}
+                            ,{playerMemberId : '00004533', playerName : '김병준', sponsor : '(어메이징크리)'}
+                            ,{playerMemberId : '00003073', playerName : '김재호', sponsor : '(우성종합건설)'}
+                            ,{playerMemberId : '00012468', playerName : '김준성', sponsor : '(속초아이)'}
+                            ,{playerMemberId : '00004959', playerName : '김태훈', sponsor : '(웹케시그룹)'}
+                            ,{playerMemberId : '00008174', playerName : '김학형', sponsor : '(속초아이)'}
+                            ,{playerMemberId : '00042741', playerName : '김한별', sponsor : '(SK텔레콤)'}
+                            ,{playerMemberId : '00003059', playerName : '김형성', sponsor : '(지벤트)'}
+                            ,{playerMemberId : '00033059', playerName : '김홍택', sponsor : '(볼빅)'}
+                            ,{playerMemberId : '00004355', playerName : 'David OH', sponsor : '(COWELL)'}
+                            ,{playerMemberId : '00007071', playerName : '맹동섭', sponsor : '(BRIC)'}
+                            ,{playerMemberId : '00004340', playerName : '문경준', sponsor : '(NH농협은행)'}
+                            ,{playerMemberId : '00008127', playerName : '문도엽', sponsor : '(DB손해보험)'}
+                            ,{playerMemberId : '00006291', playerName : '박배종', sponsor : '(하나금융그룹)'}
+                            ,{playerMemberId : '00007560', playerName : '박은신', sponsor : '(하나금융그룹)'}
+                            ,{playerMemberId : '00051503', playerName : '박준홍', sponsor : '(우리금융그룹)'}
+                            ,{playerMemberId : '00044533', playerName : '박형욱', sponsor : '(COWELL)'}
+                            ,{playerMemberId : '00049188', playerName : '배용준', sponsor : '(CJ)'}
+                            ,{playerMemberId : '00029085', playerName : '변진재', sponsor : '(우성종합건설)'}
+                            ,{playerMemberId : '00041570', playerName : '서요섭', sponsor : '(DB손해보험)'}
+                            ,{playerMemberId : '00047171', playerName : '신상훈', sponsor : '(BC카드)'}
+                            ,{playerMemberId : '00049503', playerName : 'Yonggu SHIN', sponsor : '(금강주택)'}
+                            ,{playerMemberId : '00045016', playerName : '옥태훈', sponsor : '(금강주택)'}
+                            ,{playerMemberId : '00037247', playerName : '윤성호', sponsor : '(우리금융그룹)'}
+                            ,{playerMemberId : '00046689', playerName : '이규민', sponsor : '(우성종합건설)'}
+                            ,{playerMemberId : '00006290', playerName : '이성호', sponsor : '(BRIC)'}
+                            ,{playerMemberId : '00033399', playerName : '이수민', sponsor : '(우리금융그룹)'}
+                            ,{playerMemberId : '00043156', playerName : '이승민', sponsor : '(하나금융그룹)'}
+                            ,{playerMemberId : '00005672', playerName : 'Wonjoon LEE', sponsor : '(웹케시그룹)'}
+                            ,{playerMemberId : '00046717', playerName : '이유석', sponsor : '(우성종합건설)'}
+                            ,{playerMemberId : '00043578', playerName : '이재경', sponsor : '(CJ)'}
+                            ,{playerMemberId : '00040035', playerName : '이재원', sponsor : '(BC카드)'}
+                            ,{playerMemberId : '00008102', playerName : '이정환', sponsor : '(속초아이)'}
+                            ,{playerMemberId : '00005147', playerName : 'Junseok LEE', sponsor : '(우리금융그룹)'}
+                            ,{playerMemberId : '00004383', playerName : '장동규', sponsor : '(어메이징크리)'}
+                            ,{playerMemberId : '00044771', playerName : '장승보', sponsor : '(웹케시그룹)'}
+                            ,{playerMemberId : '00056030', playerName : '장희민', sponsor : '(DB손해보험)'}
+                            ,{playerMemberId : '00029813', playerName : '전성현', sponsor : '(웹케시그룹)'}
+                            ,{playerMemberId : '00037347', playerName : '전재한', sponsor : '(볼빅)'}
+                            ,{playerMemberId : '00057232', playerName : '정유준', sponsor : '(BC카드)'}
+                            ,{playerMemberId : '00005897', playerName : '정재현', sponsor : '(지벤트)'}
+                            ,{playerMemberId : '00046891', playerName : '정찬민', sponsor : '(CJ)'}
+                            ,{playerMemberId : '00007613', playerName : '조민규', sponsor : '(우리금융그룹)'}
+                            ,{playerMemberId : '00005531', playerName : '최민철', sponsor : '(대보건설)'}
+                            ,{playerMemberId : '00044736', playerName : '최승빈', sponsor : '(CJ)'}
+                            ,{playerMemberId : '00047721', playerName : '최영준', sponsor : '(금강주택)'}
+                            ,{playerMemberId : '00004265', playerName : '최진호', sponsor : '(COWELL)'}
+                            ,{playerMemberId : '00002374', playerName : '최호성', sponsor : '(금강주택)'}
+                            ,{playerMemberId : '00042950', playerName : '최호영', sponsor : '(NH농협은행)'}
+                            ,{playerMemberId : '00044887', playerName : 'Seungsu HAN', sponsor : '(하나금융그룹)'}
+                            ,{playerMemberId : '00040222', playerName : '함정우', sponsor : '(하나금융그룹)'}
+                            ,{playerMemberId : '00006060', playerName : '허인회', sponsor : '(금강주택)'}
+                            ,{playerMemberId : '00004273', playerName : '현정협', sponsor : '(웹케시그룹)'}
+                            ,{playerMemberId : '00013542', playerName : '황중곤', sponsor : '(우리금융그룹)'}
+                        ]
+                    }
+                },
+                created: function () {
+                    const self = this;
+                    self.getList();
+                },
+                filters: {
+                    currency: function (value) {
+                        var num = new Number(value);
+                        return num.toFixed(0).replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1,")
+                    },
+                },
+                methods: {
+                    getList : function() {
+                        let self = this;
+                        let resp = doGetAjax('/api/allstar.tf');
+                        self.total = 0;
+                        self.list = resp.data.map(function (info) {
+                            let playerInfo = self.players.find(function(fiinfo) {
+                                return fiinfo.playerMemberId == info.player_member_id
+                            });
+                            playerInfo['cnt'] = info.cnt
+                            self.total += info.cnt;
+                            return playerInfo;
+                        });
+                    },
+                }
+            });
+        });
+    </script>
+</th:block>
+</head>
+
+<body class="sidebar-mini layout-fixed" style="height: auto;" layout:fragment="content" >
+<div id="app" class="Wrap">
+    <div class="topWrap">
+        <ul class="exWrap">
+            <li style="float: right;"><span class="topLiSapn">참여자 {{ total/12 | currency }} 명</span></li>
+            <li> <button type="button" class="groupWrap" @click="getList()" >리로드</button> </li>
+        </ul>
+    </div>
+    <table class="tableWrap">
+        <colgroup>
+            <col width="*%;">
+            <col width="30%;">
+        </colgroup>
+        <tbody>
+        <tr>
+            <th>선수명</th>
+            <th>득표수</th>
+        </tr>
+        <tr v-for="info in list" >
+            <td> <div class="groupWrapEnd">{{ info.playerName }} {{ info.sponsor }}</div> </td>
+            <td> <div class="groupWrapEnd">{{ info.cnt | currency }}</div> </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
+</body>
+</html>

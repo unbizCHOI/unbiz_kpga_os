@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unbiz.api.mapper.SchedulerMapper">
+    <select id="selectSchedulerAll" parameterType="Map" resultType="Map">
+        /**selectSchedulerAll*/
+        <choose>
+            <when test='tableName == "board_base"'> <include refid="board_base"></include> </when>
+            <when test='tableName == "board_job_offer"'> <include refid="board_job_offer"></include> </when>
+            <when test='tableName == "board_photo"'> <include refid="board_photo"></include> </when>
+            <when test='tableName == "board_replay"'> <include refid="board_replay"></include> </when>
+            <when test='tableName == "cnps_rcod_raw"'> <include refid="cnps_rcod_raw"></include> </when>
+            <when test='tableName == "game_category_seed"'> <include refid="game_category_seed"></include> </when>
+            <when test='tableName == "game_exam_round_booking"'> <include refid="game_exam_round_booking"></include> </when>
+            <when test='tableName == "game_exam_round_booking_hist"'> <include refid="game_exam_round_booking_hist"></include> </when>
+            <when test='tableName == "game_hole_df"'> <include refid="game_hole_df"></include> </when>
+            <when test='tableName == "game_player_point"'> <include refid="game_player_point"></include> </when>
+            <when test='tableName == "game_player_prize"'> <include refid="game_player_prize"></include> </when>
+            <when test='tableName == "game_player_record"'> <include refid="game_player_record"></include> </when>
+            <when test='tableName == "game_player_req"'> <include refid="game_player_req"></include> </when>
+            <when test='tableName == "game_player_req_hist"'> <include refid="game_player_req_hist"></include> </when>
+            <when test='tableName == "game_player_req_hist"'> <include refid="game_player_req_hist"></include> </when>
+            <when test='tableName == "game_point_dsbtbl"'> SELECT * FROM game_point_dsbtbl t1 WHERE t1.game_id LIKE '2023%' </when>
+            <when test='tableName == "game_player"'> SELECT * FROM game_player t1 WHERE t1.game_id LIKE '2023%' </when>
+            <when test='tableName == "game_qlf_player"'> SELECT * FROM game_qlf_player t1 WHERE t1.game_id LIKE '2023%' </when>
+            <when test='tableName == "game_round_starttime"'> SELECT * FROM game_round_starttime t1 WHERE t1.game_id LIKE '2022%' </when>
+            <when test='tableName == "game_score"'> SELECT * FROM kpga_db.game_score WHERE game_id LIKE '2023%' </when>
+            <when test='tableName == "game_score_org"'> SELECT * FROM game_score_org t1 WHERE t1.game_id LIKE '2023%' </when>
+            <when test='tableName == "game_score_record"'> SELECT * FROM game_score_record t1 WHERE t1.game_id LIKE '2023%'  </when>
+            <when test='tableName == "game_year_gmcnt"'> SELECT * FROM game_year_gmcnt t1 WHERE t1.game_year = '2023' </when>
+            <when test='tableName == "game_year_point"'> SELECT * FROM game_year_point t1 WHERE t1.game_year = '2023' </when>
+            <when test='tableName == "game_year_prize"'> SELECT * FROM game_year_prize t1 WHERE t1.game_year = '2023' </when>
+            <when test='tableName == "incs_tx_item"'> SELECT * FROM incs_tx_item t1 WHERE t1.tx_moid LIKE '23%' </when>
+            <when test='tableName == "incs_tx_mst"'> SELECT * FROM incs_tx_mst t1 WHERE t1.tx_moid LIKE '23%'  </when>
+            <when test='tableName == "mgmt_tour_seed"'> SELECT * FROM mgmt_tour_seed t1 WHERE t1.apc_year = '2023' </when>
+            <when test='tableName == "player_nonofficial_record_year"'>  SELECT * FROM player_nonofficial_record_year t1 WHERE t1.game_year = '2023' </when>
+            <when test='tableName == "player_nonofficial_record_year_before"'> SELECT * FROM player_nonofficial_record_year_before t1 WHERE t1.game_year = '2023' </when>
+            <when test='tableName == "player_record_year"'> SELECT * FROM player_record_year t1 WHERE t1.game_year = '2023' </when>
+            <when test='tableName == "player_record_year_before"'> SELECT * FROM player_record_year_before t1 WHERE t1.game_year = '2023' </when>
+            <when test='tableName == "player_user_mst_hist"'> SELECT * FROM player_user_mst_hist t1 WHERE t1.hist_dttm > '2023-01-01 00:00:00'  </when>
+            <when test='tableName == "player_year_round"'> SELECT * FROM player_year_round t1 WHERE t1.game_year = '2023' </when>
+            <otherwise> SELECT * FROM kpga_db.${tableName} </otherwise>
+        </choose>
+        LIMIT #{pageNo}, 10000
+    </select>
+
+    <sql id="board_base"> SELECT * FROM  board_base WHERE createdDate LIKE '2023%' </sql>
+    <sql id="board_job_offer"> SELECT * FROM board_job_offer t1 WHERE t1.J_CRATDATE > '2023-01-01 00:00:00' </sql>
+    <sql id="board_photo"> SELECT * FROM board_photo t1 WHERE t1.crat_date > '2023-01-01 00:00:00' </sql>
+    <sql id="board_replay"> SELECT * FROM board_replay t1 WHERE t1.create_date > '2023-01-01 00:00:00' </sql>
+    <sql id="cnps_rcod_raw"> SELECT * FROM cnps_rcod_raw t1 WHERE t1.gm_code LIKE '202311%' </sql>
+    <sql id="game_category_seed"> SELECT * FROM game_category_seed t1 WHERE t1.game_id LIKE '2023%' </sql>
+    <sql id="game_exam_round_booking"> SELECT * FROM game_exam_round_booking t1 WHERE t1.game_id LIKE '2023%' </sql>
+    <sql id="game_exam_round_booking_hist"> SELECT * FROM game_exam_round_booking_hist t1 WHERE t1.game_id LIKE '2023%' </sql>
+    <sql id="game_hole_df">SELECT * FROM game_hole_df t1 WHERE t1.game_id LIKE '2023%' </sql>
+    <sql id="game_player_point">SELECT * FROM game_player_point t1 WHERE t1.game_id LIKE '2023%' </sql>
+    <sql id="game_player_prize">SELECT * FROM game_player_prize t1 WHERE t1.game_id LIKE '2023%' </sql>
+    <sql id="game_player_record">SELECT * FROM game_player_record t1 WHERE t1.game_id LIKE '2023%' </sql>
+    <sql id="game_player_req">SELECT * FROM game_player_req t1 WHERE t1.game_id LIKE '2023%'    </sql>
+    <sql id="game_player_req_hist">SELECT * FROM game_player_req_hist t1 WHERE t1.game_id LIKE '2023%'    </sql>
+    <sql id="game_score"> SELECT * FROM kpga_db.game_score WHERE game_id LIKE '2023%' </sql>
+    <sql id="game_player"> SELECT * FROM kpga_db.game_player WHERE game_id LIKE '202311%' </sql>
+
+</mapper>

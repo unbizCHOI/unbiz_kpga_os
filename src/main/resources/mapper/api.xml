@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unbiz.api.mapper.ApiMapper">
+    <select id="selectMst" parameterType="Map" resultType="GameVO">
+        /**selectMst*/
+        /**대회리스트*/
+        SELECT
+             t1.apc_year            apcYear         /*연도*/
+            ,t1.game_id             gameId          /*대회코드*/
+            ,t1.game_name           gameName        /*대회명*/
+            ,t1.cptMtd_type         gameRollType    /*대회룰종류(S:기본, M:매치, F:변형스테이브폴드)*/
+            ,t1.game_open_date      gameOpenDate    /*대회시작일*/
+            ,t1.game_close_date     gameCloseDate   /*대회종료일*/
+            ,t1.game_prize          gamePrize       /*상금*/
+            ,t1.amt_unit            amtUnit         /*상금단위*/
+            ,t1.game_round_cnt      gameRoundCnt
+        FROM kpga_db.game_mst t1
+        <where>
+            AND t1.apc_year  = #{apcYear}
+            AND t1.game_type = 'M'
+            <if test='tourId == "11"'>AND t1.tour_id = 11</if>
+            <if test='tourId != "11"'>AND t1.tour_id != 11</if>
+            <if test='!@org.springframework.util.ObjectUtils@isEmpty(gameId)'> AND t1.game_id = #{gameId} </if>
+        </where>
+        ORDER BY t1.game_open_date
+    </select>
+
+    <select id="selectCourse" parameterType="Map" resultType="CourseVO">
+        /**selectCourse*/
+        /**코스정보*/
+        SELECT
+        t1.game_id
+        ,t1.hole_par_1       holePar1           ,t1.hole_par_2       holePar2           ,t1.hole_par_3       holePar3
+        ,t1.hole_par_4       holePar4           ,t1.hole_par_5       holePar5           ,t1.hole_par_6       holePar6
+        ,t1.hole_par_7       holePar7           ,t1.hole_par_8       holePar8           ,t1.hole_par_9       holePar9
+        ,t1.hole_par_10      holePar10          ,t1.hole_par_11      holePar11          ,t1.hole_par_12      holePar12
+        ,t1.hole_par_13      holePar13          ,t1.hole_par_14      holePar14          ,t1.hole_par_15      holePar15
+        ,t1.hole_par_16      holePar16          ,t1.hole_par_17      holePar17          ,t1.hole_par_18      holePar18
+        ,t1.hole_par_out     holeParOut         ,t1.hole_par_in      holeParIn          ,t1.hole_par_sum     holeParSum
+        ,t1.hole_yard_1      holeDistance1      ,t1.hole_yard_2      holeDistance2      ,t1.hole_yard_3      holeDistance3
+        ,t1.hole_yard_4      holeDistance4      ,t1.hole_yard_5      holeDistance5      ,t1.hole_yard_6      holeDistance6
+        ,t1.hole_yard_7      holeDistance7      ,t1.hole_yard_8      holeDistance8      ,t1.hole_yard_9      holeDistance9
+        ,t1.hole_yard_10     holeDistance10     ,t1.hole_yard_11     holeDistance11     ,t1.hole_yard_12     holeDistance12
+        ,t1.hole_yard_13     holeDistance13     ,t1.hole_yard_14     holeDistance14     ,t1.hole_yard_15     holeDistance15
+        ,t1.hole_yard_16     holeDistance16     ,t1.hole_yard_17     holeDistance17     ,t1.hole_yard_18     holeDistance18
+        ,t1.hole_yard_out    holeDistanceOut    ,t1.hole_yard_in     holeDistanceIn     ,t1.hole_yard_sum    holeDistanceSum
+        FROM kpga_db.game_course t1
+        <where>
+            AND t1.game_id = #{gameId}
+        </where>
+        LIMIT 1
+    </select>
+
+    <select id="selectGroup" parameterType="Map" resultType="GroupVO">
+        /**selectGroup*/
+        /**조편성정보*/
+        SELECT
+        t1.game_id        gameId
+        ,t1.round_no       roundNo
+        ,t1.exp_group_no   groupNum       /*조번호*/
+        ,t1.start_in_out   startInOut     /*출발INOUT*/
+        ,t1.start_hole_no  startHoleNo    /*출발홀*/
+        ,t1.start_time     startTime      /*출발시간*/
+        FROM kpga_db.game_round_starttime t1
+        <where>
+            AND t1.game_id  = #{gameId}
+            AND t1.round_no = #{roundNo}
+        </where>
+        ORDER BY t1.exp_group_no ,t1.start_time
+    </select>
+
+    <select id="selectPlayer" parameterType="Map" resultType="PlayerVO">
+        /**selectPlayer*/
+        /**참가선수정보*/
+        SELECT
+        t1.game_id                             gameId
+        ,t1.member_id                           memberId
+        ,t1.player_name                         playerNm
+        ,CONCAT('path/', t1.member_id,'.png')   playerImgPath
+        FROM kpga_db.game_player t1
+        <where>
+            AND t1.game_id  = #{gameId}
+        </where>
+    </select>
+
+
+    <select id="selectScore" parameterType="Map" resultType="ScoreVO">
+        /**selectScore*/
+        /**스코어정보*/
+        SELECT
+             t1.game_id        ,t1.round_no     ,t1.member_id     ,t4.player_name
+            ,t1.region_group_course_id          ,t1.game_subgroup_code      ,t1.start_time_id
+            ,t3.course_id       ,t2.exp_group_no   group_num      ,t1.start_tee_off_order
+            ,t1.score_1        ,t1.score_2      ,t1.score_3       ,t1.score_4        ,t1.score_5      ,t1.score_6
+            ,t1.score_7        ,t1.score_8      ,t1.score_9       ,t1.score_10       ,t1.score_11     ,t1.score_12
+            ,t1.score_13       ,t1.score_14     ,t1.score_15      ,t1.score_16       ,t1.score_17     ,t1.score_18
+            ,t1.score_out_tot  score_out        ,t1.score_in_tot  score_in           ,t1.score_sum_tot score_sum
+            ,IFNULL(t1.score_1 - t3.hole_par_1, 0 ) udpar_1       ,IFNULL(t1.score_2 - t3.hole_par_2, 0 ) udpar_2
+            ,IFNULL(t1.score_3 - t3.hole_par_3, 0 ) udpar_3       ,IFNULL(t1.score_4 - t3.hole_par_4, 0 ) udpar_4
+            ,IFNULL(t1.score_5 - t3.hole_par_5, 0 ) udpar_5       ,IFNULL(t1.score_6 - t3.hole_par_6, 0 ) udpar_6
+            ,IFNULL(t1.score_7 - t3.hole_par_7, 0 ) udpar_7       ,IFNULL(t1.score_8 - t3.hole_par_8, 0 ) udpar_8
+            ,IFNULL(t1.score_9 - t3.hole_par_9, 0 ) udpar_9       ,IFNULL(t1.score_10 - t3.hole_par_10, 0 ) udpar_10
+            ,IFNULL(t1.score_11 - t3.hole_par_11, 0 ) udpar_11    ,IFNULL(t1.score_12 - t3.hole_par_12, 0 ) udpar_12
+            ,IFNULL(t1.score_13 - t3.hole_par_13, 0 ) udpar_13    ,IFNULL(t1.score_14 - t3.hole_par_14, 0 ) udpar_14
+            ,IFNULL(t1.score_15 - t3.hole_par_15, 0 ) udpar_15    ,IFNULL(t1.score_16 - t3.hole_par_16, 0 ) udpar_16
+            ,IFNULL(t1.score_17 - t3.hole_par_17, 0 ) udpar_17    ,IFNULL(t1.score_18 - t3.hole_par_18, 0 ) udpar_18
+            ,(IFNULL(t1.score_1 - t3.hole_par_1, 0 ) + IFNULL(t1.score_2 - t3.hole_par_2, 0 )
+            + IFNULL(t1.score_3 - t3.hole_par_3, 0 ) + IFNULL(t1.score_4 - t3.hole_par_4, 0 )
+            + IFNULL(t1.score_5 - t3.hole_par_5, 0 ) + IFNULL(t1.score_6 - t3.hole_par_6, 0 )
+            + IFNULL(t1.score_7 - t3.hole_par_7, 0 ) + IFNULL(t1.score_8 - t3.hole_par_8, 0 )
+            + IFNULL(t1.score_9 - t3.hole_par_9, 0 ) ) udpar_out
+            ,(IFNULL(t1.score_10 - t3.hole_par_10, 0 ) + IFNULL(t1.score_11 - t3.hole_par_11, 0 )
+            + IFNULL(t1.score_12 - t3.hole_par_12, 0 ) + IFNULL(t1.score_13 - t3.hole_par_13, 0 )
+            + IFNULL(t1.score_14 - t3.hole_par_14, 0 ) + IFNULL(t1.score_15 - t3.hole_par_15, 0 )
+            + IFNULL(t1.score_16 - t3.hole_par_16, 0 ) + IFNULL(t1.score_17 - t3.hole_par_17, 0 )
+            + IFNULL(t1.score_18 - t3.hole_par_18, 0 )) udpar_in
+            ,(IFNULL(t1.score_1 - t3.hole_par_1, 0 ) + IFNULL(t1.score_2 - t3.hole_par_2, 0 )
+            + IFNULL(t1.score_3 - t3.hole_par_3, 0 ) + IFNULL(t1.score_4 - t3.hole_par_4, 0 )
+            + IFNULL(t1.score_5 - t3.hole_par_5, 0 ) + IFNULL(t1.score_6 - t3.hole_par_6, 0 )
+            + IFNULL(t1.score_7 - t3.hole_par_7, 0 ) + IFNULL(t1.score_8 - t3.hole_par_8, 0 )
+            + IFNULL(t1.score_9 - t3.hole_par_9, 0 ) + IFNULL(t1.score_10 - t3.hole_par_10, 0 )
+            + IFNULL(t1.score_11 - t3.hole_par_11, 0 ) + IFNULL(t1.score_12 - t3.hole_par_12, 0 )
+            + IFNULL(t1.score_13 - t3.hole_par_13, 0 ) + IFNULL(t1.score_14 - t3.hole_par_14, 0 )
+            + IFNULL(t1.score_15 - t3.hole_par_15, 0 ) + IFNULL(t1.score_16 - t3.hole_par_16, 0 )
+            + IFNULL(t1.score_17 - t3.hole_par_17, 0 ) + IFNULL(t1.score_18 - t3.hole_par_18, 0 )) udpar_sum
+            ,t1.accu_sum_underpar   accu_udpar    ,t1.accu_sum_score accu_score
+            ,t1.round_rank                        ,t1.accu_rank
+            ,IFNULL(t1.exception_yn ,'N')   exception_yn
+            ,IFNULL(t1.exception_type ,'')  exception_type
+        FROM game_score t1
+        LEFT OUTER JOIN game_round_starttime t2
+        ON t1.game_id = t2.game_id
+        AND t1.round_no = t2.round_no
+        AND t1.start_time_id = t2.start_time_id
+        LEFT OUTER JOIN game_course t3
+        ON t1.game_id = t3.game_id
+        AND t1.region_group_course_id = t3.region_group_course_id
+        AND t1.game_subgroup_code = t3.game_subgroup_code
+        LEFT OUTER JOIN kpga_db.game_player t4
+        ON t1.game_id = t4.game_id
+        AND t1.member_id = t4.member_id
+        <where>
+            AND t1.game_id  = #{gameId}
+            AND t1.round_no = #{roundNo}
+            <if test='!@org.springframework.util.ObjectUtils@isEmpty(groupNo)'> AND t2.exp_group_no = #{groupNo} </if>
+            <if test='!@org.springframework.util.ObjectUtils@isEmpty(playerNm)'> AND ( t1.member_id = #{playerNm} OR t4.player_name LIKE CONCAT('%', #{playerNm} , '%') ) </if>
+        </where>
+        ORDER BY t2.exp_group_no , t1.start_tee_off_order
+    </select>
+
+    <insert id="insertLog" parameterType="Map">
+        INSERT INTO tb_log (id, str_json)
+        VALUES (#{id} , #{str_json});
+    </insert>
+
+    <select id="selectAllstar" resultType="Map">
+    /*selectAllstar*/
+        SELECT
+            t1.player_member_id
+             ,COUNT(1) cnt
+        FROM kpga.event_allstar t1
+        GROUP BY t1.player_member_id
+        ORDER BY cnt DESC
+    </select>
+
+</mapper>

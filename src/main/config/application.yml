@@ -1,0 +1,42 @@
+spring:
+  profiles:
+    active: prod
+  tomcat:
+    uri-encoding: UTF-8
+  devtools:
+    livereload:
+      enabled: true
+  freemarker:
+    cache: false
+  mvc.pathmatch.matching-strategy : ant_path_matcher
+  datasource:
+    idle-timeout: 10000
+    maximum-pool-size: 10
+    minimum-idle: 5
+    pool-name: BaseHikariPool
+  main:
+    allow-circular-references: true
+
+server:
+  servlet:
+    context-path: /
+    session:
+      timeout: 180m
+spring.thymeleaf:
+  servlet:
+    content-type: text/html
+  check-template: true
+  check-template-location: true
+  enabled: true
+  encoding: UTF-8
+  mode: HTML
+  prefix: classpath:/templates/
+  suffix: .html
+
+
+mybatis:
+  mapper-locations: mapper/**/*.xml
+  type-aliases-package: com.unbiz.api.model.**
+  configuration:
+    map-underscore-to-camel-case: true
+

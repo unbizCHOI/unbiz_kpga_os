@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unbiz.api.mapper.TimeparMapper">
+    <select id="selectTimeparHole" parameterType="Map" resultType="Map">
+        /**selectTimeparHole*/
+        SELECT
+            t1.game_id
+             ,t1.hole1              ,t1.hole10
+             ,t1.hole2              ,t1.hole11
+             ,t1.hole3              ,t1.hole12
+             ,t1.hole4              ,t1.hole13
+             ,t1.hole5              ,t1.hole14
+             ,t1.hole6              ,t1.hole15
+             ,t1.hole7              ,t1.hole16
+             ,t1.hole8              ,t1.hole17
+             ,t1.hole9              ,t1.hole18
+        FROM kpga.tb_timepar_hole t1
+        WHERE t1.game_id = #{gameId}
+          AND t1.round_no = #{roundNo}
+        LIMIT 1
+    </select>
+
+    <select id="selectTimeparStand" parameterType="Map" resultType="Map">
+        /**selectTimeparStand*/
+        SELECT
+              t1.group_no                                                  ,DATE_FORMAT(t1.start_time, '%Y-%m-%d %H:%i:%s') start_time
+             ,DATE_FORMAT(t1.hole1, '%Y-%m-%d %H:%i:%s') hole1            ,DATE_FORMAT(t1.hole10, '%Y-%m-%d %H:%i:%s') hole10
+             ,DATE_FORMAT(t1.hole2, '%Y-%m-%d %H:%i:%s') hole2            ,DATE_FORMAT(t1.hole11, '%Y-%m-%d %H:%i:%s') hole11
+             ,DATE_FORMAT(t1.hole3, '%Y-%m-%d %H:%i:%s') hole3            ,DATE_FORMAT(t1.hole12, '%Y-%m-%d %H:%i:%s') hole12
+             ,DATE_FORMAT(t1.hole4, '%Y-%m-%d %H:%i:%s') hole4            ,DATE_FORMAT(t1.hole13, '%Y-%m-%d %H:%i:%s') hole13
+             ,DATE_FORMAT(t1.hole5, '%Y-%m-%d %H:%i:%s') hole5            ,DATE_FORMAT(t1.hole14, '%Y-%m-%d %H:%i:%s') hole14
+             ,DATE_FORMAT(t1.hole6, '%Y-%m-%d %H:%i:%s') hole6            ,DATE_FORMAT(t1.hole15, '%Y-%m-%d %H:%i:%s') hole15
+             ,DATE_FORMAT(t1.hole7, '%Y-%m-%d %H:%i:%s') hole7            ,DATE_FORMAT(t1.hole16, '%Y-%m-%d %H:%i:%s') hole16
+             ,DATE_FORMAT(t1.hole8, '%Y-%m-%d %H:%i:%s') hole8            ,DATE_FORMAT(t1.hole17, '%Y-%m-%d %H:%i:%s') hole17
+             ,DATE_FORMAT(t1.hole9, '%Y-%m-%d %H:%i:%s') hole9            ,DATE_FORMAT(t1.hole18, '%Y-%m-%d %H:%i:%s')  hole18
+        FROM kpga.tb_timepar_stand t1
+        WHERE t1.game_id = #{gameId}
+          AND t1.round_no = #{roundNo}
+    </select>
+
+    <select id="selectTimeparStamp" parameterType="Map" resultType="Map">
+        /**selectTimeparStamp*/
+        SELECT
+            t1.group_no , t2.start_time, t2.start_hole_no , t2.start_am_pm , t2.start_in_out
+           ,DATE_FORMAT(t1.hole1_end   , '%Y-%m-%d %H:%i:%s')  hole1_end
+           ,DATE_FORMAT(t1.hole2_end   , '%Y-%m-%d %H:%i:%s')  hole2_end
+           ,DATE_FORMAT(t1.hole3_end   , '%Y-%m-%d %H:%i:%s')  hole3_end
+           ,DATE_FORMAT(t1.hole4_end   , '%Y-%m-%d %H:%i:%s')  hole4_end
+           ,DATE_FORMAT(t1.hole5_end   , '%Y-%m-%d %H:%i:%s')  hole5_end
+           ,DATE_FORMAT(t1.hole6_end   , '%Y-%m-%d %H:%i:%s')  hole6_end
+           ,DATE_FORMAT(t1.hole7_end   , '%Y-%m-%d %H:%i:%s')  hole7_end
+           ,DATE_FORMAT(t1.hole8_end   , '%Y-%m-%d %H:%i:%s')  hole8_end
+           ,DATE_FORMAT(t1.hole9_end   , '%Y-%m-%d %H:%i:%s')  hole9_end
+           ,DATE_FORMAT(t1.hole10_end  , '%Y-%m-%d %H:%i:%s')  hole10_end
+           ,DATE_FORMAT(t1.hole11_end  , '%Y-%m-%d %H:%i:%s')  hole11_end
+           ,DATE_FORMAT(t1.hole12_end  , '%Y-%m-%d %H:%i:%s')  hole12_end
+           ,DATE_FORMAT(t1.hole13_end  , '%Y-%m-%d %H:%i:%s')  hole13_end
+           ,DATE_FORMAT(t1.hole14_end  , '%Y-%m-%d %H:%i:%s')  hole14_end
+           ,DATE_FORMAT(t1.hole15_end  , '%Y-%m-%d %H:%i:%s')  hole15_end
+           ,DATE_FORMAT(t1.hole16_end  , '%Y-%m-%d %H:%i:%s')  hole16_end
+           ,DATE_FORMAT(t1.hole17_end  , '%Y-%m-%d %H:%i:%s')  hole17_end
+           ,DATE_FORMAT(t1.hole18_end  , '%Y-%m-%d %H:%i:%s')  hole18_end
+        FROM kpga.tb_timepar_stamp t1
+        LEFT OUTER JOIN kpga_db.game_round_starttime t2
+        ON t1.game_id = t2.game_id AND t1.round_no = t2.round_no AND t1.group_no = t2.exp_group_no
+        LEFT OUTER JOIN kpga_db.game_round t3 ON t1.game_id = t3.game_id AND t1.round_no = t3.round_no
+        WHERE t1.game_id = #{gameId}
+        AND t1.round_no = #{roundNo}
+        ORDER BY t2.start_am_pm, t2.start_in_out DESC, t2.start_time
+    </select>
+</mapper>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{thymeleaf/layout/default}">
+<th:block layout:fragment="css">
+    <style>
+        .par_color { list-style:none; overflow:hidden; background:#11b723; padding:5px 20px;}
+        .par_color li {float: left; min-width:  50px; margin-right:10px; line-height:18px; font-size:11px;}
+        .par_color li > div {float:left; display:block; width: 18px; height: 18px; margin-right:5px;  box-sizing:border-box;}
+        .par_color li div.eagle {border:2px solid #a6863f; border-radius:50%;}
+        .par_color li div.eagle > div{width:12px; height:12px; margin:1px; border:2px solid #a6863f; border-radius:50%;}
+        .par_color li div.birdie{border:1px solid #a6863f; border-radius:50%;}
+        .par_color li div.par {}
+        .par_color li div.bogey {border:1px solid #0057cb;}
+        .par_color li div.dbogey {border:2px solid #2c22ff;}
+        .par_color li div.dbogey > div{width:12px; height:12px; margin:1px; border:2px solid #2c22ff;}
+        .par_color li div.tbogey {border:3px solid #0a2548;}
+        .hole_group {margin:0 auto 5px; border: 1px solid black; padding:10px; width:120px; }
+        .hole_group .group_nm {width: 100%;}
+        .hole_group button.btn{font-size:15px !important; display:block; margin:5px auto 0 !important; font-weight:bold; color:#000;}
+        td{position:relative;}
+        td>span{display:block; width:35px; height:35px; line-height:23px; text-align:center; margin:0 auto; box-sizing:border-box;}
+        td>span>span{display:block; width:27px; height:27px; margin:2px auto; box-sizing:border-box; font-size:20px !important;}
+        td.eagle>span{border:2px solid #a6863f; border-radius:50%;}
+        td.eagle>span>span{border:2px solid #a6863f; border-radius:50%;}
+        td.birdie>span{border:2px solid #a6863f; border-radius:50%;}
+        td.par>span{padding-top: 2px;}
+        td.bogey>span{border:2px solid #0057cb;}
+        td.dbogey>span{border:2px solid #2c22ff;}
+        td.dbogey>span>span{border:2px solid #2c22ff;}
+        td.tbogey>span{border:2px solid #0a2548;}
+        .on-bg td>span,.on-bg td>span>span{border-color:#fff;}
+        .on-bg.yellow-bg td>span,.on-bg.yellow-bg td>span>span{border-color:#2b2b2b;}
+        .leaderboard{height: 300px; overflow-y:scroll; overflow-x: auto;}
+        .card .tableWrap .table tbody tr td{border:1px solid #7b7474;}
+        .leaderboardTd tr td {vertical-align:middle; }
+        .color0 {background-color:#f8f9fa; }
+        .color1 {background-color:#a6daca; }
+        .color2 {background-color:#dee2e6; }
+        [v-cloak] { display: none; }
+    </style>
+    <link rel="stylesheet" href="/leaderboard/css/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/leaderboard/css/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+    <link rel="stylesheet" href="/leaderboard/css/adminlte.min.css">
+    <link rel="stylesheet" href="/leaderboard/css/style.css">
+</th:block>
+<th:block layout:fragment="script">
+
+    <script type="text/javascript">
+        let app = '';
+        let SECOND = 1000;
+        $(document).ready(function () {
+            const pagePath = "/outer/leaderboard";
+            app = new Vue({
+                el: "#app",
+                data: function () {
+                    return {
+                        list : {
+                            score : [],
+                            par : [],
+                            holeOut : [1,2,3,4,5,6,7,8,9],
+                            holeIn : [10,11,12,13,14,15,16,17,18],
+                            groupCnt : {}, // 조당 선수 수
+
+                        },
+                        search : {
+                            gameId : '[[${gameId}]]',
+                            roundNo : '[[${roundNo}]]',
+                        },
+                        machine : {
+                            timer : '',
+                            time : '',
+                            interval : 5,
+                            cnt : 0,
+                        },
+                    }
+                },
+                created: function () {
+                    const self = this;
+                    self.doBase().init();
+                },
+                filters: {
+                    isShow : function (value) {
+                        return value && value != 0 ? value : '-';
+                    }
+                },
+                methods: {
+                    doBase : function () {
+                        const self  = this;
+                        return {
+                            init : function () {
+                                self.list.par = doAjax('/api/course.tf',self.search).data[0];
+                                self.list.player = doAjax('/api/player.tf', self.search).data;
+                                self.doBase().score();
+                                self.machine.timer = setInterval(function () {
+                                    self.machine.cnt++;
+                                    if(new Date().getSeconds() % self.machine.interval == 0){
+                                        self.doBase().score();
+                                        self.machine.cnt = 0;
+                                        self.machine.time = new moment().format('LTS');
+                                    }
+                                }, SECOND);
+                            },
+                            score : function () {
+                                let score = doAjax('/api/score.tf',self.search).data;
+                                self.list.groupCnt = {};
+                                score = score.map(function (info) {
+                                    let groupText = 'group' + info.groupNum;
+                                    let groupCnt = self.list.groupCnt[groupText];
+                                    if(groupCnt){
+                                        groupCnt++;
+                                        info['groupFirst'] = 'N';
+                                    } else {
+                                        groupCnt = 1;
+                                        info['groupFirst'] = 'Y';
+                                    }
+                                    self.list.groupCnt[groupText] = groupCnt;
+                                    return info;
+                                });
+                                self.list.score = score;
+                            }
+                        }
+                    },
+                    getScoreClass : function(holeNo, info) {
+
+                        let udpar = info['udpar'+holeNo];
+                        let upparClass = '';
+                        if(info['score'+holeNo] != 0){
+                            if(udpar < -1){
+                                upparClass = 'eagle';
+                            } else if (udpar == -1){
+                                upparClass = 'birdie';
+                            } else if (udpar == 0){
+                                upparClass = 'par';
+                            } else if (udpar == 1){
+                                upparClass = 'bogey';
+                            } else if (udpar > 1){
+                                upparClass = 'dbogey';
+                            } else {
+                                upparClass = ''
+                            }
+                        }
+                        return upparClass;
+                    },
+                }
+            });
+        });
+    </script>
+</th:block>
+</head>
+<body class="sidebar-mini layout-fixed tt" layout:fragment="content">
+<div class="wrapper" id="app">
+    <div class="row" style="margin-right: 0px;">
+        <div class="col-12">
+            <div class="card">
+                <div class="tableWrap">
+                    <!-- 리더보드 -->
+                    <div class="leaderboard" style="height:95vh;">
+                        <table id="" class="table">
+                            <colgroup>
+                                <col width="50">
+                                <col width="120">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="50">
+                                <col width="60">
+                                <col width="60">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th width="50">조</th>
+                                <th width="120">선수명</th>
+                                <th width="50" v-for="holeNo in list.holeOut">{{holeNo}}H({{ list.par['holePar'+holeNo]}})</th>
+                                <th width="50">OUT</th>
+                                <th width="50" v-for="holeNo in list.holeIn">{{holeNo}}H({{ list.par['holePar'+holeNo]}})</th>
+                                <th width="50">IN</th>
+                                <th width="60">합계</th>
+                                <th width="60">총합계</th>
+                            </tr>
+                            </thead>
+                            <tbody class="leaderboardTd">
+                            <tr v-for="(info, idx) in list.score" :class="'color' + (info.groupNum%3)">
+                                <td v-if="info.groupFirst == 'Y'" :rowspan="list.groupCnt['group' + info.groupNum]">{{ info.groupNum }}</td>
+                                <td>{{ info.playerName }}</td>
+                                <td v-for="holeNo in list.holeOut" :class="getScoreClass(holeNo, info)"><span><span>{{ info['score'+ holeNo] | isShow}}</span></span></td>
+                                <td>{{info.scoreOut}}</td>
+                                <td v-for="holeNo in list.holeIn" :class="getScoreClass(holeNo, info)"><span><span>{{ info['score'+ holeNo] | isShow}}</span></span></td>
+                                <td>{{info.scoreIn}}</td>
+                                <td>{{info.scoreSum}}</td>
+                                <td>{{info.accuScore}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="border:0; border-bottom:3px solid #000; border-top:3px solid #000; box-shadow:none;">
+                <div class="tableWrap">
+                    <ul class="par_color" style="margin-bottom:0;">
+                        <li> <div class="eagle"><div></div></div>eagle</li>
+                        <li> <div class="birdie"></div>birdie</li>
+                        <li> <div class="bogey"></div>bogey</li>
+                        <li> <div class="dbogey"><div></div></div>dbogey</li>
+                        <li style="float: right" class="birdie"> <span><span> {{ machine.cnt }}</span></span></li>
+                        <li style="float: right"> 최근 수정일시 : {{ machine.time }} </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

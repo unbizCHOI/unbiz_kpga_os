@@ -1,0 +1,17 @@
+server:
+  port: 17005
+
+spring.thymeleaf.cache: true
+
+file:
+  path:
+    log : F:\project\unbiz_kpga_os\logs\
+
+spring:
+  datasource:
+    hikari:
+      type: com.zaxxer.hikari.HikariDataSource
+      driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+      jdbc-url: jdbc:log4jdbc:mysql://kpga-db-prod.cmmt58eft922.ap-northeast-2.rds.amazonaws.com:3306/kpga_db?characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false
+      username: ddfactory
+      password: ddfactory1!

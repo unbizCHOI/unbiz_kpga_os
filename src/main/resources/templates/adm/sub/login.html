@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{thymeleaf/layout/default}">
+<th:block layout:fragment="css">
+	<link rel="stylesheet" href="/adm/css/adminlte.min.css">
+	<link rel="stylesheet" href="/adm/css/style.css">
+	<link rel="stylesheet" href="/adm/css/common.css">
+</th:block>
+<th:block layout:fragment="script">
+	<script type="text/javascript">
+		let loginInfo = {
+			'kpga' : 'kpga!@#',
+		};
+		$(document).ready(function () {
+			app = new Vue({
+				el: "#app",
+				data: function () {
+					return {
+						search : {
+							gameId: '',
+							userPw : '',
+							gameInfo : '',
+							roundNo : '1',
+							userId : '',
+						},
+						gameList : [],
+					}
+				},
+				created: function () {
+					let self = this;
+					let resp = doAjax('/api/game.tf', { apcYear : new Date().getFullYear(), tourId : '12'});
+					self.gameList = resp.data;
+				},
+				methods: {
+					doBase : function () {
+						const self  = this;
+						return {
+							login : function(){
+								if(self.search.gameInfo.gameId == ''){
+									alert('대회를 선택 주세요.');
+									self.$refs.gameId.focus();
+								} else if(self.search.roundNo == ''){
+									alert('라운드를 선택 주세요.');
+									self.$refs.gameId.focus();
+								} else if(self.search.userId == ''){
+									alert('ID를 확인해주세요.');
+									self.$refs.userId.focus();
+								} else if(self.search.userPw == ''){
+									alert('PW를 확인해주세요.');
+									self.$refs.userPw.focus();
+								} else if(loginInfo[self.search.userId] != self.search.userPw){
+									alert('ID,PW를 확인해주세요.');
+									self.$refs.userPw.focus();
+								}else {
+									let param = {
+										gameId : self.search.gameInfo.gameId,
+										gameName : self.search.gameInfo.gameName,
+										roundNo : self.search.roundNo,
+										userId : self.search.userId,
+										apcYear : new Date().getFullYear(),
+										tourId : '12'
+									};
+									let resp = doAjax("/adm/pick.tf", param);
+									if(resp.total == 0){
+										alert('대회코드 및 라운들르 확인해 주세요 .');
+									} else {
+										movePage("/adm/sub/score.do", null);
+									}
+								}
+							},
+						}
+					},
+				}
+			});
+		});
+	</script>
+</th:block>
+</head>
+
+<body layout:fragment="content">
+<div id="app" v-clock>
+	<div class="Wrap">
+		<div class="login-page">
+			<div class="form">
+				<form class="login-form">
+					<select v-model="search.gameInfo">
+						<option value=""> 대회 선택 </option>
+						<option v-for="game in gameList" :value="game">
+							{{ game.gameName }} || {{ game.gameOpenDate }}  ~ {{ game.gameCloseDate }} </option>
+					</select>
+					<select v-model="search.roundNo">
+						<option v-for="roundNo in search.gameInfo.gameRoundCnt" :value="roundNo">{{ roundNo }} 라운드</option>
+					</select>
+					<input id="userId" type="text" placeholder="ID" v-model="search.userId" ref="userId" @keyup.13="doBase().login()"/>
+					<input id="userPw" type="password" autocomplete="off" placeholder="비밀번호 입력"  v-model="search.userPw" ref="userPw" @keyup.13="doBase().login()" />
+					<button id="btnLogin" type="button" @click="doBase().login()">로그인</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
