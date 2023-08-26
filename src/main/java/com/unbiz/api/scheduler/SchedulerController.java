@@ -36,6 +36,12 @@ public class SchedulerController {
 		parameterMap = new HashMap();
 		parameterMap.put("apcYear", new Date().getYear());
 	}
+
+	@Scheduled(cron="*/5 * * * * *")
+	public void backup22() throws Exception {
+		schedulerService.updateTimepar();
+	}
+
 	@Scheduled(cron="0 0 23 * * *")
 	public void backup() throws Exception {
 		System.out.println("시작: " + new Date().getYear());

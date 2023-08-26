@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{thymeleaf/layout/default}">
+<th:block layout:fragment="css">
+    <link rel="stylesheet" href="/adm/css/adminlte.min.css">
+    <link rel="stylesheet" href="/adm/css/style.css">
+
+    <style type="text/css">
+        .btnTd input{ height: 30px; width: 40px; text-align: center;}
+        .btnTd button{background: #273140 !important; color: #fff !important; ; width: 40px; height :30px; margin: 1px; }
+        .tr1 {background: #3d9970;}
+    </style>
+</th:block>
+<th:block layout:fragment="script">
+    <script type="text/javascript" src="/libs/js/xlsx.full.min.js"></script>
+    <script type="text/javascript" src="/libs/js/sheetjs-style.xlsx.min.js"></script>
+    <script type="text/javascript" src="/libs/js/FileSaver.min.js"></script>
+    <script type="text/javascript" src="/libs/js/excel.js"></script>
+
+    <script type="text/javascript">
+        let app = '';
+        $(document).ready(function () {
+            app = new Vue({
+                el: "#app",
+                data: function () {
+                    return {
+                        code : {
+                            excel :[],
+                        },
+                        game : {
+                            gameId : '',
+                            roundNo: '',
+                        },
+                        excel : {
+                            gameId : '',
+                            roundNo: '1',
+                            data : null,
+                        },
+                        list : [],
+                    }
+                },
+                created: function () {
+                    const self = this;
+                    self.doBase().init();
+                },
+                methods: {
+                    doBase : function () {
+                        const self = this;
+                        return {
+                            init: function () {
+                                self.doBase().getGame();
+                                let resp = doAjax('/api/game.tf', { apcYear : new Date().getFullYear(), tourId : '11'});
+                                self.list = resp.data;
+                            },
+                            getGame :function () {
+                                let resp = doAjax('/timepar/game.tf', {});
+                                self.game = resp.data;
+                                self.excel.gameId = resp.data.gameId;
+                                self.excel.roundNo = resp.data.roundNo;
+                            },
+                            save : function () {
+                                if(self.game.gameId.length < 5){
+                                    alert('대회코드를 입력해 주세요');
+                                } else {
+                                    let resp = doAjax('/timepar/game/save.tf', self.game);
+                                    self.doBase().getGame();
+                                    alert('처리 되었습니다.');
+                                }
+                            },
+                        }
+                    },
+                    doExcel : function () {
+                        const self = this;
+                        return {
+                            readExcel : function (data){
+                                self.excel.data = data;
+                            },
+                            save : function () {
+                                if(self.excel.gameId.length < 5){
+                                    alert('대회코드를 입력해 주세요');
+                                } else {
+                                    let resp = doAjax('/timepar/excel/save.tf', self.excel);
+                                    alert('처리 되었습니다.');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</th:block>
+</head>
+<body class="sidebar-mini layout-fixed" style="height: auto;" layout:fragment="content" >
+    <div id="app" class="" style="min-height: 835px;">
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="searchArea">
+                                <p class="tit">엑셀 </p>
+                                <div class="searchForm">
+                                    <table class="tblSearch" style="text-align: center">
+                                        <colgroup>
+                                            <col width="10%">
+                                            <col width="20%">
+                                            <col width="10%">
+                                            <col width="10%">
+                                            <col width="5%">
+                                            <col width="10%">
+                                            <col width="*">
+                                        </colgroup>
+                                        <tbody>
+                                            <tr>
+                                                <td> 대회코드 </td>
+                                                <td>
+                                                    <select class="form-control" v-model="excel.gameId">
+                                                        <option v-for="gInfo in list" :value="gInfo.gameId">{{ gInfo.gameName }} </option>
+                                                    </select>
+                                                </td>
+                                                <td> 라운드 </td>
+                                                <td>
+                                                    <select class="form-control" v-model="excel.roundNo">
+                                                        <option v-for="roundNo in 4" :value="roundNo">{{ roundNo }}R</option>
+                                                    </select>
+                                                </td>
+                                                <td></td>
+                                                <td> <input class="form-control" id="excelFile" type="file" onchange="excel.read(app.doExcel().readExcel)"> </td>
+                                                <td></td>
+                                                <td> <button class="btnShot" @click="doExcel().save()">저장</button> </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="card">
+                            <div class="searchArea">
+                                <p class="tit">대회선택</p>
+                                <div class="searchForm">
+                                    <table class="tblSearch" style="text-align: center">
+                                        <colgroup>
+                                            <col width="10%">
+                                            <col width="20%">
+                                            <col width="10%">
+                                            <col width="10%">
+                                            <col width="5%">
+                                            <col width="10%">
+                                            <col width="*">
+                                        </colgroup>
+                                        <tbody>
+                                        <tr>
+                                            <td> 대회코드 </td>
+                                            <td>
+                                                <select class="form-control" v-model="game.gameId">
+                                                    <option v-for="gInfo in list" :value="gInfo.gameId">{{ gInfo.gameName }} </option>
+                                                </select>
+                                            </td>
+
+
+                                            <td> 라운드 </td>
+                                            <td>
+                                                <select class="form-control" v-model="game.roundNo">
+                                                    <option v-for="roundNo in 4" :value="roundNo">{{ roundNo }}R</option>
+                                                </select>
+                                            </td>
+                                            <td></td>
+                                            <td> <button class="btnShot" @click="doBase().save()">저장</button> </td>
+                                            <td></td>
+                                            <td> </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+</body>
+</html>

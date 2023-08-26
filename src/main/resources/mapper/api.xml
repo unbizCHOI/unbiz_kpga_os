@@ -157,7 +157,7 @@
     /*selectAllstar*/
         SELECT
             t1.player_member_id
-             ,COUNT(1) cnt
+            ,COUNT(1) cnt
         FROM kpga.event_allstar t1
         GROUP BY t1.player_member_id
         ORDER BY cnt DESC

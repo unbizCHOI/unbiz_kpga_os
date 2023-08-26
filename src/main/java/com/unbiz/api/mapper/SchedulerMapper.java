@@ -21,4 +21,6 @@ import java.util.Map;
 @Mapper
 public interface SchedulerMapper {
     public List<Map> selectSchedulerAll(Map parameterMap);
+
+    void updateTimepar();
 }

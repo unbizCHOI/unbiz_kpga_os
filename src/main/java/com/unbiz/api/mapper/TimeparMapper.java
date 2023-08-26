@@ -23,4 +23,10 @@ public interface TimeparMapper {
 
     List<Map> selectTimeparStand(Map parameterMap);
     Map selectTimeparHole(Map parameterMap);
+
+    Integer insertTimeparHole(Map parameterMap);
+
+    Integer insertTimeparGame(Map parameterMap);
+    Map selectTimeparGame();
+    Integer insertTimeparStamp(Map parameterMap);
 }

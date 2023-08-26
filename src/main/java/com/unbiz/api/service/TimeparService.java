@@ -25,10 +25,13 @@ public class TimeparService {
     private TimeparMapper timeparMapper;
 
     public Map selectTimeparHole(Map parameterMap){ return timeparMapper.selectTimeparHole(parameterMap); }
-
     public List<Map> selectTimeparStand(Map parameterMap){ return timeparMapper.selectTimeparStand(parameterMap); }
     public List<Map> selectTimeparStamp(Map parameterMap){
         return timeparMapper.selectTimeparStamp(parameterMap);
     }
+    public Integer insertTimeparHole(Map parameterMap){ return timeparMapper.insertTimeparHole(parameterMap); }
+    public Integer insertTimeparGame(Map parameterMap){ return timeparMapper.insertTimeparGame(parameterMap); }
+    public Map selectTimeparGame(){ return timeparMapper.selectTimeparGame(); }
+    public Integer insertTimeparStamp(Map parameterMap){return timeparMapper.insertTimeparStamp(parameterMap); }
 
 }

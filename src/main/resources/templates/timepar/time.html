@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{thymeleaf/layout/default}">
+<th:block layout:fragment="css">
+    <link rel="stylesheet" href="/adm/css/adminlte.min.css">
+    <link rel="stylesheet" href="/adm/css/style.css">
+
+    <style type="text/css">
+        .btnTd button{background: #273140 !important; color: #fff !important; ; width: 40px; height :30px; }
+        .tr1 {background: #3d9970;}
+        body:not(.sidebar-mini-md) .content-wrapper, body:not(.sidebar-mini-md) .main-footer, body:not(.sidebar-mini-md) .main-header { margin-left: 1px !important; }
+    </style>
+</th:block>
+<th:block layout:fragment="script">
+    <script type="text/javascript">
+        let app = '';
+        let SECOND = 1000;
+        let MINUTE = 60;
+        $(document).ready(function () {
+            app = new Vue({
+                el: "#app",
+                data: function () {
+                    return {
+                        list : [],
+                        search : {
+                            gameId : '',
+                            roundNo : 1,
+                        },
+                        gameInfo : {},
+                        course :{},
+                        hole:{},
+                        groupHole : {},
+                        list : [],
+                        timer : {
+                            lastTime : '',
+                            woker : '',
+                            time : 0,
+                            timer : 0,
+                        },
+                        lineArr : [],
+                    }
+                },
+                created: function () {
+                    let self = this;
+                    let resp = doAjax('/timepar/game.tf', {});
+                    self.search.gameId = resp.data.gameId;
+                    self.search.roundNo = resp.data.roundNo;
+
+                    resp = doAjax('/timepar/hole.tf', self.search);
+                    self.hole = resp.data;
+                    resp = doAjax('/timepar/stand.tf', self.search);
+                    let groupHole = {};
+                    resp.data.forEach(function (info) {
+                        groupHole['group' + info.group_no] = info;
+                    });
+                    self.groupHole = groupHole;
+
+                    resp = doAjax('/api/game.tf', { apcYear : new Date().getFullYear(), tourId : '11', gameId : self.search.gameId});
+                    self.gameInfo = resp.data[0];
+
+                    self.doBase().getList();
+                },
+                methods: {
+                    getHoleTime : function (info, holeNo) {
+                        let times = info['holeTime' +holeNo ];
+                        return info['hole'+ holeNo +'_end'] ? times : info['holeStandTime' +holeNo ];
+                    },
+                    doBase : function () {
+                        let self  = this;
+                        return {
+                            getList : function() {
+                                let resp = doAjax('/timepar/stamp.tf', self.search);
+                                let inout = 'OUT'
+                                let ampm = 'AM';
+                                let lineArr = [0];
+                                self.timer.time = 0;
+                                self.list = resp.data.map(function (info,idx) {
+                                    for (let i = Number(info.start_hole_no); i < Number(info.start_hole_no) + 18; i++) {
+                                        let holeNo = i > 18 ? i - 18 : i;
+
+                                        let holeStandTime = moment(self.groupHole['group'+info.group_no]['hole' + holeNo]);
+                                        let holeRealTimeStr = info['hole'+ holeNo +'_end'];
+                                        let holeRealTime = moment(holeRealTimeStr);
+                                        info['holeStandTime' + holeNo] = holeStandTime.format('HH:mm');
+                                        let holeTime = Math.floor(((holeRealTime - holeStandTime)/SECOND/MINUTE));
+                                        info['holeTime' + holeNo] = holeTime;
+                                        let className = '';
+                                        if(holeTime == 0 || !holeRealTimeStr ){
+                                            className = 'even';
+                                        } else if(holeTime < 0){
+                                            className = holeTime*-1 > 9 ? 'minus2' : 'minus';
+                                        } else if(holeTime > 0){
+                                            className = holeTime > 9 ? 'plus2' : 'plus';
+                                        }
+                                        info['className' + holeNo] = className;
+                                    }
+                                    if(info.start_am_pm != ampm || info.start_in_out != inout){
+                                        inout = info.start_in_out;
+                                        ampm = info.start_am_pm
+                                        lineArr.push(idx);
+                                    }
+                                    return info;
+                                })
+                                self.lineArr = lineArr;
+                            },
+                            save : function (holeNo, info) {
+                                let resp = goSave("/adm/sub/score",{
+                                    holeNo					: holeNo
+                                    ,gameId					: info.gameId
+                                    ,regionGroupCourseId	: info.regionGroupCourseId
+                                    ,gameSubgroupCode		: info.gameSubgroupCode
+                                    ,roundNo				: info.roundNo
+                                    ,courseId				: info.courseId
+                                    ,startTimeId			: info.startTimeId
+                                    ,memberId			 	: info.memberId
+                                    ,score					: info['score'+holeNo]
+                                    ,userId					: self.sessionInfo.userId
+                                });
+                                console.log(resp)
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</th:block>
+</head>
+<body class="sidebar-mini layout-fixed" style="height: auto;" layout:fragment="content" >
+    <div id="app" class="wrapper">
+        <div class="content-wrapper" style="min-height: 835px;">
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div>
+                                    <div class="mainTitArea">
+                                        <div><h1 class="mainTit">시간을 수정한다 <span></span></h1></div>
+                                    </div>
+                                    <div class="searchArea"><p class="tit">상세 검색</p>
+                                        <div class="searchForm">
+                                            <table class="tblSearch">
+                                                <colgroup>
+                                                    <col style="width: 10%;">
+                                                    <col style="width: 10%;">
+                                                    <col style="width: 10%;">
+                                                    <col style="width: 10%;">
+                                                    <col style="width: 10%;">
+                                                    <col style="width: 10%;">
+                                                </colgroup>
+                                                <tbody>
+                                                <tr>
+                                                    <th>라운드</th>
+                                                    <td>
+                                                        <select class="form-control" v-model="search.roundNo" disabled>
+                                                            <option value="1">1라운드</option>
+                                                            <option value="2">2라운드</option>
+                                                            <option value="3">3라운드</option>
+                                                            <option value="4">4라운드</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>조번호</th>
+                                                    <td> <input type="text"  v-model="search.groupNo" @keyup.13="doBase().getList()" placeholder="조번호을 입력하세요." class="form-control inlineBox"></td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                            <div class="btnWrap">
+                                                <button type="button" class="btn btnSearch" @click="doBase().getList()">검색</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tableWrap">
+                                        <table id="listTable" class="table text-nowrap">
+                                            <thead>
+                                                <tr>
+                                                    <th>조번호</th>
+                                                    <th v-for="no in 18"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody v-if="list.length == 0">
+                                                <tr><td colspan="12">검색된 데이터가 없습니다.</td></tr>
+                                            </tbody>
+                                            <tbody v-else>
+                                            <template v-for="info in list">
+                                                <tr>
+                                                    <td>{{ info.group_no }}</td>
+                                                    <td v-for="hole in 18" class="btnTd">
+                                                        {{ getHoleTime(info, hole) }}
+                                                        <button type="button" @click="doBase().save(hole, info)">{{hole}}H</button>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <footer class="main-footer">
+            <strong>Copyright UNBIZ All rights reserved.</strong>
+        </footer>
+        <aside class="control-sidebar control-sidebar-dark"></aside>
+    </div>
+</div>
+</body>
+</html>

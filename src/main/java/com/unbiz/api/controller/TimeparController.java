@@ -33,12 +33,21 @@ public class TimeparController  extends BaseController {
     private TimeparService timeparService;
     private static final String basePath = "timepar/";
 
-    @RequestMapping(value = "/stamp/{gameId}/{roundNo}", method = {RequestMethod.GET})
-    public ModelAndView page(Model model, @PathVariable String gameId, @PathVariable String roundNo) {
-        model.addAttribute("gameId",gameId);
-        model.addAttribute("roundNo",roundNo);
+    @RequestMapping(value = "/stamp", method = {RequestMethod.GET})
+    public ModelAndView page(Model model) {
         return new ModelAndView( basePath + "stamp" );
     }
+
+    @RequestMapping(value = "/before", method = {RequestMethod.GET})
+    public ModelAndView pageBefore(Model model) {
+        return new ModelAndView( basePath + "before" );
+    }
+
+    @RequestMapping(value = "/time", method = {RequestMethod.GET})
+    public ModelAndView pageTime(Model model) {
+        return new ModelAndView( basePath + "time" );
+    }
+
 
     @RequestMapping(value = "/hole.tf")
     public ResultVO Hole(@RequestBody Map parameterMap) {
@@ -53,6 +62,22 @@ public class TimeparController  extends BaseController {
     @RequestMapping(value = "/stand.tf")
     public ResultVO Stand(@RequestBody Map parameterMap) {
         return success(timeparService.selectTimeparStand(parameterMap));
+    }
+
+    @RequestMapping(value = "/excel/save.tf")
+    public ResultVO excelSave(@RequestBody Map parameterMap) {
+        return success(timeparService.insertTimeparHole(parameterMap));
+    }
+
+    @RequestMapping(value = "/game/save.tf")
+    public ResultVO GameSave(@RequestBody Map parameterMap) {
+        timeparService.insertTimeparStamp(parameterMap);
+        return success(timeparService.insertTimeparGame(parameterMap));
+    }
+
+    @RequestMapping(value = "/game.tf")
+    public ResultVO Game(@RequestBody Map parameterMap) {
+        return success(timeparService.selectTimeparGame());
     }
 
 }

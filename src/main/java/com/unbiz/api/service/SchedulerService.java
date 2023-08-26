@@ -27,4 +27,6 @@ public class SchedulerService {
         return schedulerMapper.selectSchedulerAll(parameterMap);
     }
 
+    public void updateTimepar(){schedulerMapper.updateTimepar();}
+
 }

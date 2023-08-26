@@ -68,4 +68,41 @@
         AND t1.round_no = #{roundNo}
         ORDER BY t2.start_am_pm, t2.start_in_out DESC, t2.start_time
     </select>
+
+    <insert id="insertTimeparHole" parameterType="Map">
+        /*insertTimeparHole*/
+        DELETE FROM kpga.tb_timepar_stand WHERE game_id = #{gameId} AND round_no = #{roundNo};
+
+        INSERT INTO kpga.tb_timepar_stand
+            (game_id, round_no, group_no, start_time
+            , hole1, hole2, hole3, hole4, hole5, hole6, hole7, hole8, hole9
+            , hole10, hole11, hole12, hole13, hole14, hole15, hole16, hole17, hole18) VALUES
+        <foreach collection="data" item="t" separator=",">
+        (#{gameId}, #{roundNo}, #{t.group_no}, #{t.start_time}
+        , #{t.hole1}, #{t.hole2}, #{t.hole3}, #{t.hole4}, #{t.hole5}, #{t.hole6}, #{t.hole7}, #{t.hole8}, #{t.hole9}
+        , #{t.hole10}, #{t.hole11}, #{t.hole12}, #{t.hole13}, #{t.hole14}, #{t.hole15}, #{t.hole16}, #{t.hole17}, #{t.hole18}) </foreach>
+    </insert>
+
+    <select id="selectTimeparGame" resultType="Map">
+        /**insertTimeparGame*/
+        SELECT t1.game_id gameId, t1.round_no roundNo
+        FROM kpga.tb_timepar_game t1
+        WHERE t1.seq = (SELECT MAX(t2.seq) FROM kpga.tb_timepar_game t2)
+    </select>
+
+
+    <insert id="insertTimeparGame">
+        /**insertTimeparGame*/
+        INSERT INTO kpga.tb_timepar_game (game_id, round_no) VALUES (#{gameId}, #{roundNo})
+    </insert>
+
+    <insert id="insertTimeparStamp">
+        /**insertTimeparStamp*/
+        INSERT INTO kpga.tb_timepar_stamp (game_id, round_no, group_no)
+        SELECT t1.game_id ,t1.round_no,t1.exp_group_no
+        FROM kpga_db.game_round_starttime t1
+        LEFT OUTER JOIN kpga.tb_timepar_stamp t2
+        ON t1.game_id = t2.game_id AND t1.round_no = t2.round_no AND t1.exp_group_no = t2.group_no
+        WHERE t1.game_id = #{gameId} AND t1.round_no = #{roundNo} AND t2.game_id IS NULL
+    </insert>
 </mapper>

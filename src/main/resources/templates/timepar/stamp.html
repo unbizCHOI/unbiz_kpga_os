@@ -44,14 +44,16 @@
                 },
                 created: function () {
                     const self = this;
-                    let resp = doAjax('/api/game.tf', { apcYear : new Date().getFullYear(), tourId : '11', gameId : self.search.gameId});
+                    let resp = doAjax('/timepar/game.tf', {});
+                    self.search.gameId = resp.data.gameId;
+                    self.search.roundNo = resp.data.roundNo;
+
+                    resp = doAjax('/api/game.tf', { apcYear : new Date().getFullYear(), tourId : '11', gameId : self.search.gameId});
                     self.gameInfo = resp.data[0];
                     resp = doAjax('/api/course.tf', { gameId : self.search.gameId});
                     self.course = resp.data[0];
-
                     resp = doAjax('/timepar/hole.tf', self.search);
                     self.hole = resp.data;
-
                     resp = doAjax('/timepar/stand.tf', self.search);
                     let groupHole = {};
                     resp.data.forEach(function (info) {
@@ -59,7 +61,7 @@
                     });
                     self.groupHole = groupHole;
                     self.getList();
-                    self.timer.woker = setInterval(function(){self.getList();}, 30 * SECOND);
+                    self.timer.woker = setInterval(function(){self.getList();}, 10 * SECOND);
                     self.timer.timer = setInterval(function(){self.timer.time++;}, SECOND);
                 },
                 methods: {
@@ -84,9 +86,9 @@
                                 if(holeTime == 0 || !holeRealTimeStr ){
                                     className = 'even';
                                 } else if(holeTime < 0){
-                                    className = holeTime < 10 ? 'minus2' : 'minus';
+                                    className = holeTime*-1 > 9 ? 'minus2' : 'minus';
                                 } else if(holeTime > 0){
-                                    className = holeTime > 10 ? 'plus2' : 'plus';
+                                    className = holeTime > 9 ? 'plus2' : 'plus';
                                 }
                                 info['className' + holeNo] = className;
                             }
@@ -119,7 +121,7 @@
     <div id="app">
         <div id="container2">
             <h1>Pace of Play Time</h1>
-            <div id="tourinfo">{{ gameInfo.gameName }}</div>
+            <div id="tourinfo">{{ gameInfo.gameName }} {{ search.roundNo }}R</div>
             <div class="btn-group" role="group">
                 <a class="btn btn-primary" role="button" @click="getList()">
                      Refresh <span >{{ timer.time }}</span>
