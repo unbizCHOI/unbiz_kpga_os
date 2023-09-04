@@ -66,6 +66,7 @@
         LEFT OUTER JOIN kpga_db.game_round t3 ON t1.game_id = t3.game_id AND t1.round_no = t3.round_no
         WHERE t1.game_id = #{gameId}
         AND t1.round_no = #{roundNo}
+        <if test="groupNo != '' and groupNo != null">AND t1.group_no = #{groupNo}</if>
         ORDER BY t2.start_am_pm, t2.start_in_out DESC, t2.start_time
     </select>
 
@@ -105,4 +106,76 @@
         ON t1.game_id = t2.game_id AND t1.round_no = t2.round_no AND t1.exp_group_no = t2.group_no
         WHERE t1.game_id = #{gameId} AND t1.round_no = #{roundNo} AND t2.game_id IS NULL
     </insert>
+
+    <update id="updateTimeparStamp">
+        UPDATE kpga.tb_timepar_stamp
+        SET hole${holeNo}_end = CASE WHEN #{endDate} = 'del' THEN NULL ELSE #{endDate} END
+        WHERE game_id = #{gameId} AND round_no = #{roundNo} AND group_no = #{groupNo}
+
+    </update>
+
+    <resultMap id="TimeparGroupMap" type="com.unbiz.api.model.TimeparGroup">
+        <result property="gameId"						column="gameId"		/>
+        <result property="roundNo"						column="roundNo"		/>
+        <result property="holeNo"						column="holeNo"		/>
+        <result property="memberId"						column="memberId"		/>
+        <result property="startTimeId"					column="startTimeId"		/>
+        <result property="groupNum"						column="groupNum"		/>
+        <result property="playerName"					column="playerName"		/>
+        <result property="score"					    column="score"		/>
+
+        <collection property="shotList"
+                    column="{gameId = gameId, roundNo = roundNo, memberId = memberId, holeNo = holeNo}"
+                    select="selectTimeparPlayerShot" />
+    </resultMap>
+
+    <select id="selectTimeparGroup" resultMap="TimeparGroupMap">
+        /**selectTimeparGroup*/
+        SELECT
+            t1.game_id                  gameId
+            ,t1.round_no                roundNo
+            ,t2.member_id               memberId
+            ,#{holeNo}                  holeNo
+            ,t1.start_time_id           startTimeId
+            ,t1.exp_group_no            groupNum
+            ,t3.player_name             playerName
+            ,t2.score_${holeNo}         score
+        FROM kpga_db.game_round_starttime t1
+        JOIN kpga_db.game_score t2
+        ON t1.game_id = t2.game_id
+        AND t1.round_no = t2.round_no AND t1.start_time_id = t2.start_time_id
+        JOIN kpga_db.game_player t3
+        ON t2.game_id = t3.game_id AND t2.member_id = t3.member_id
+        WHERE t1.game_id = #{gameId}
+          AND t1.round_no = #{roundNo}
+          AND t1.exp_group_no = #{groupNo};
+
+    </select>
+
+    <select id="selectTimeparPlayerShot" resultType="Map">
+        /**selectTimeparPlayerShot*/
+        SELECT
+            t1.shot_no          shotNo
+            ,t1.`field`         `field`
+        FROM kpga.track3d_shot_info t1
+        WHERE t1.game_id = #{gameId}
+          AND t1.round_no = #{roundNo}
+          AND t1.member_id = #{memberId}
+          AND t1.hole_no = #{holeNo}
+        ORDER BY t1.shot_no
+    </select>
+
+    <select id="selectFullswingDataTime" resultType="Map">
+    /**selectFullswingDataTime*/
+        SELECT
+            t1.hole_no              holeNo
+            ,MAX(t1.reg_date)       regDate
+        FROM kpga.kpsa_full_swing t1
+        JOIN kpga.tb_timepar_game t2
+        ON t1.game_id = t2.game_id
+        AND t1.round_no = t2.round_no
+        AND t2.seq = (SELECT MAX(t0.seq) FROM kpga.tb_timepar_game t0)
+        GROUP BY t1.hole_no;
+    </select>
+
 </mapper>

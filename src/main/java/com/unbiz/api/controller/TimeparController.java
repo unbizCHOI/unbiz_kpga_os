@@ -80,4 +80,23 @@ public class TimeparController  extends BaseController {
         return success(timeparService.selectTimeparGame());
     }
 
+
+    @RequestMapping(value = "/stamp/save.tf")
+    public ResultVO updateTimeparStamp(@RequestBody Map parameterMap) {
+        return success(timeparService.updateTimeparStamp(parameterMap));
+    }
+    @RequestMapping(value = "/shot.tf")
+    public ResultVO selectTimeparShot(@RequestBody Map parameterMap) {
+        return success(timeparService.selectTimeparGroup(parameterMap));
+    }
+    @RequestMapping(value = "/fs.tf")
+    public ResultVO selectfs(@RequestBody Map parameterMap) {
+        return success(timeparService.selectFullswingDataTime());
+    }
+
+    @RequestMapping(value = "/ime", method = {RequestMethod.GET})
+    public ModelAndView pagess(Model model) {
+        return new ModelAndView( basePath + "ime" );
+    }
+
 }

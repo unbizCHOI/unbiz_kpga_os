@@ -2,6 +2,7 @@ package com.unbiz.api.service;
 
 import com.unbiz.api.mapper.SchedulerMapper;
 import com.unbiz.api.mapper.TimeparMapper;
+import com.unbiz.api.model.TimeparGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,5 +34,10 @@ public class TimeparService {
     public Integer insertTimeparGame(Map parameterMap){ return timeparMapper.insertTimeparGame(parameterMap); }
     public Map selectTimeparGame(){ return timeparMapper.selectTimeparGame(); }
     public Integer insertTimeparStamp(Map parameterMap){return timeparMapper.insertTimeparStamp(parameterMap); }
+    public Integer updateTimeparStamp(Map parameterMap){return timeparMapper.updateTimeparStamp(parameterMap); }
+
+    public List<TimeparGroup> selectTimeparGroup(Map parameterMap){ return timeparMapper.selectTimeparGroup(parameterMap); }
+    public List<Map> selectFullswingDataTime(){ return timeparMapper.selectFullswingDataTime(); }
+
 
 }

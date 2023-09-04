@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{thymeleaf/layout/default}">
+<th:block layout:fragment="css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/timepar/css/bootstrap.css">
+
+    <link rel="stylesheet" href="/timepar/css/style.css">
+    <style>
+        tr.par{ background-color: #821302; color: #fff;}
+        .even{ background-color: yellow; }
+    </style>
+
+</th:block>
+<th:block layout:fragment="script">
+    <script type="text/javascript">
+        let app = '';
+        let SECOND = 1000;
+        let MINUTE = 60;
+        $(document).ready(function () {
+            app = new Vue({
+                el: "#app",
+                data: function () {
+                    return {
+                        search : {
+                            gameId : '[[${gameId}]]',
+                            roundNo : '[[${roundNo}]]',
+                        },
+                        gameInfo : {},
+                        course :{},
+                        hole:{},
+                        groupHole : {},
+                        list : [],
+                        timer : {
+                            lastTime : '',
+                            woker : '',
+                            time : 0,
+                            timer : 0,
+                        },
+                        lineArr : [],
+                        zoomNo : '1',
+                        modal : {
+                            isOpen : false,
+                            isOpenHelp : false,
+                            list : [] ,
+                            groupNo : '',
+                            holeNo : '',
+                        }
+                    }
+                },
+                filters: {
+                    dateFormat2: function (value) {
+                        if (!value || value.length < 10) return '';
+                        return moment(value).format('YYYY년 MM월 DD일 HH시mm분ss초');
+                    }
+                },
+                created: function () {
+                    const self = this;
+                    let resp = doAjax('/timepar/game.tf', {});
+                    self.search.gameId = resp.data.gameId;
+                    self.search.roundNo = resp.data.roundNo;
+
+                    resp = doAjax('/api/game.tf', { apcYear : new Date().getFullYear(), tourId : '11', gameId : self.search.gameId});
+                    self.gameInfo = resp.data[0];
+
+                    self.getList();
+                    self.timer.woker = setInterval(function(){self.getList();}, 60 * SECOND);
+                    self.timer.timer = setInterval(function(){self.timer.time++;}, SECOND);
+                },
+                methods: {
+                    getList : function() {
+                        let self = this;
+                        let resp = doAjax('/timepar/fs.tf', self.search);
+                        self.list = resp.data.map(function (info,idx) {
+                            let holeStandTime = moment(info.regDate);
+                            let holeRealTime = moment();
+                            let holeTime = Math.floor(((holeRealTime - holeStandTime)/SECOND/MINUTE));
+
+                            let className = '';
+                            if(holeTime > 30 ){
+                                className = 'par';
+                            }
+
+                            info['holeTime']=holeTime;
+                            info['className']= className;
+                            return info;
+                        })
+                        self.timer.lastTime = moment().format('YYYY년 MM월 DD일  HH시mm분ss초')
+                        self.timer.time = 0;
+                    },
+                    getClass : function (time) {
+                        
+                    }
+                }
+            });
+        });
+    </script>
+</th:block>
+</head>
+<body class="sidebar-mini layout-fixed" style="height: auto;" layout:fragment="content" >
+<div id="app">
+    <div id="container2">
+        <h1>오직 <span style="font-size: 40px; color: blue">임종민</span> <span style="font-size: 35px; color: red;">단 한 사람</span>을 위한 화면 </h1>
+        <h1>풀스위 홀별 데이터 마지막 시간 </h1>
+        <div id="tourinfo">{{ gameInfo.gameName }} {{ search.roundNo }}R</div>
+        <div class="btn-group" role="group">
+            <a class="btn btn-primary" role="button" @click="getList()">
+                Refresh <span >{{ timer.time }}</span>
+            </a>
+        </div>
+        <div><span id="time">{{ timer.lastTime }}</span></div>
+        <table style="width: 100%">
+            <tbody>
+            <tr>
+                <th>홀번호</th>
+                <th>마지막 시간</th>
+                <th>지난시간</th>
+            </tr>
+            <tr v-for="(info, idx) in list"  :class="info.className">
+                <td>{{ info.holeNo }}</td>
+                <td>{{ info.regDate | dateFormat2}}</td>
+                <td>{{ info.holeTime }}분전</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

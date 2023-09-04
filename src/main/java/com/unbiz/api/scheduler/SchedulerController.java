@@ -4,6 +4,7 @@ package com.unbiz.api.scheduler;
 import com.opencsv.CSVWriter;
 import com.unbiz.api.service.SchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
@@ -31,6 +32,9 @@ public class SchedulerController {
 	@Autowired
 	private SchedulerService schedulerService;
 	private Map parameterMap;
+	private static String active;
+	@Value("${spring.profiles.active}")
+	public void setActive(String active) { this.active = active; }
 
 	private void initParameter(){
 		parameterMap = new HashMap();
@@ -39,7 +43,9 @@ public class SchedulerController {
 
 	@Scheduled(cron="*/5 * * * * *")
 	public void backup22() throws Exception {
-		schedulerService.updateTimepar();
+		if("prod".equals(active)) {
+			schedulerService.updateTimepar();
+		}
 	}
 
 	@Scheduled(cron="0 0 23 * * *")

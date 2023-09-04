@@ -1,5 +1,6 @@
 package com.unbiz.api.mapper;
 
+import com.unbiz.api.model.TimeparGroup;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -29,4 +30,9 @@ public interface TimeparMapper {
     Integer insertTimeparGame(Map parameterMap);
     Map selectTimeparGame();
     Integer insertTimeparStamp(Map parameterMap);
+    Integer updateTimeparStamp(Map parameterMap);
+    List<TimeparGroup> selectTimeparGroup(Map parameterMap);
+    List<Map> selectFullswingDataTime();
+
+
 }

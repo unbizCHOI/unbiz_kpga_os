@@ -9,7 +9,7 @@
         th.par3{ background-color: #01022b; color: #fff;}
         th.par4{ background-color: #072607; color: #fff;}
         th.par5{ background-color: #821302; color: #fff;}
-
+        .even{ background-color: yellow; }
     </style>
 
 </th:block>
@@ -40,6 +40,13 @@
                         },
                         lineArr : [],
                         zoomNo : '1',
+                        modal : {
+                            isOpen : false,
+                            isOpenHelp : false,
+                            list : [] ,
+                            groupNo : '',
+                            holeNo : '',
+                        }
                     }
                 },
                 created: function () {
@@ -83,13 +90,15 @@
                                 let holeTime = Math.floor(((holeRealTime - holeStandTime)/SECOND/MINUTE));
                                 info['holeTime' + holeNo] = holeTime;
                                 let className = '';
-                                if(holeTime == 0 || !holeRealTimeStr ){
+                                if( !holeRealTimeStr ) {
+                                } else if(holeTime == 0 ){
                                     className = 'even';
                                 } else if(holeTime < 0){
                                     className = holeTime*-1 > 9 ? 'minus2' : 'minus';
                                 } else if(holeTime > 0){
                                     className = holeTime > 9 ? 'plus2' : 'plus';
                                 }
+
                                 info['className' + holeNo] = className;
                             }
                             if(info.start_am_pm != ampm || info.start_in_out != inout){
@@ -109,6 +118,46 @@
                     fnZoom : function (zoomNo) {
                         let self = this;
                         self.zoomNo = zoomNo;
+                    },
+                    showGroupShot : function (groupNo, holeNo, isDone) {
+                        //if(!isDone) return;
+                        let self = this;
+                        let resp = doAjax('/timepar/shot.tf', $.extend({groupNo : groupNo, holeNo : holeNo},self.search));
+                        self.modal = {
+                            isOpen : true,
+                            list : resp.data ,
+                            groupNo : groupNo,
+                            holeNo :holeNo,
+                        }
+                    },
+                    getShotTxt : function (field) {
+                        let txt = '-';
+                        if(field == '1'){
+                            txt = 'F';
+                        } else if(field == '2'){
+                            txt = 'R';
+                        } else if(field == '3'){
+                            txt = 'G';
+                        } else if(field == '4'){
+                            txt = 'OB';
+                        } else if(field == '5'){
+                            txt = 'PA';
+                        } else if(field == '6'){
+                            txt = 'B';
+                        } else if(field == '7'){
+                            txt = 'LB';
+                        } else if(field == '8'){
+                            txt = 'PS';
+                        } else if(field == '9'){
+                            txt = 'GB';
+                        } else if(field == '10'){
+                            txt = 'IN';
+                        }
+                        return txt;
+                    },
+                    isShowHole : function () {
+                        let self = this;
+                        self.modal.isOpenHelp = !self.modal.isOpenHelp;
                     }
                 }
             });
@@ -119,6 +168,9 @@
 
 <body layout:fragment="content" >
     <div id="app">
+        <div id="headerCont">
+            <a @click="isShowHole()" class="btn btn-default help">？</a>
+        </div>
         <div id="container2">
             <h1>Pace of Play Time</h1>
             <div id="tourinfo">{{ gameInfo.gameName }} {{ search.roundNo }}R</div>
@@ -141,15 +193,50 @@
                             </tr>
                             <tr >
                                 <th><a href="##"> {{ info.group_no }} </a></th>
-                                <td v-for="holeNo in 9"  :class="info['className' + holeNo ]"> {{ getHoleTime(info, holeNo)}} </td>
+                                <td v-for="holeNo in 9"  :class="info['className' + holeNo ]" @click="showGroupShot(info.group_no, holeNo, info['hole'+ holeNo +'_end'])"> {{ getHoleTime(info, holeNo)}} </td>
                                 <th><a href="##"> {{ info.group_no }} </a></th>
-                                <td v-for="holeNo in 9"  :class="info['className' + (holeNo+9) ]"> {{ getHoleTime(info, (holeNo+9)) }} </td>
+                                <td v-for="holeNo in 9"  :class="info['className' + (holeNo+9) ]" @click="showGroupShot(info.group_no, holeNo+9, info['hole'+ (holeNo+9) +'_end'])"> {{ getHoleTime(info, (holeNo+9)) }} </td>
                                 <th><a href="##"> {{ info.group_no }} </a></th>
                             </tr>
                         </template>
                     </tbody>
                 </table>
             </div>
+            <div v-if="modal.isOpen" id="holedetail" style="display: block;" >
+                <div>
+                    <h2>Group {{ modal.groupNo }} / Hole {{ modal.holeNo }} ( Par {{ course['holePar' + modal.holeNo] }})</h2>
+                    <template v-for="info in modal.list">
+                        <h3>{{ info.playerName }}</h3>
+                        <dl>
+                            <dt>{{ info.score == 0 ? '-' : info.score }}</dt>
+                            <dd> <span v-for=" sinfo in info.shotList" :class="'shotItem shot_' + getShotTxt(sinfo.field)">{{ getShotTxt(sinfo.field) }}</span> </dd>
+                        </dl>
+                    </template>
+                </div>
+                <a @click="modal.isOpen = false;" id="holedatailclose" class="btn btn-primary btn-block" style="clear: both;">Close</a>
+            </div>
+
+            <div v-if="modal.isOpenHelp" id="help" style="display: block;">
+                <h4>Pace of play time</h4>
+                <p><span class="minus">Number</span>　빠르다 (10분 미만)</p>
+                <p><span class="minus2">Number</span>　빠르다 (10분 이상)</p>
+                <p><span class="plus">Number</span>　느리다 (10분 미만)</p>
+                <p><span class="plus2">Number</span>　느리다 (10분 이상)</p>
+                <h4>Shot detail</h4>
+                <p><span class="shot_F">F</span>　페어웨이</p>
+                <p><span class="shot_R">R</span>  러프</p>
+                <p><span class="shot_G">G</span>　그린</p>
+                <p><span class="shot_IN">IN</span> 홀인</p>
+                <p><span class="shot_B">B</span>　벙커</p>
+                <p><span class="shot_GB">GB</span>　주린 주변 벙커</p>
+                <p><span class="shot_OB">OB</span>　OB</p>
+                <p><span class="shot_LB">LB</span>　분실구</p>
+                <p><span class="shot_PA">PA</span>　페널티구역</p>
+                <p><span class="shot_PS">PS</span>　벌타</p>
+                <a @click="modal.isOpenHelp = false;" id="helpclose" class="btn btn-primary btn-block" href="javascript:void(0);" role="button" style="clear: both;">Close</a>
+            </div>
+
+
             <div id="zoomCont" class="btn-group btn-group-justified" role="group">
                 <a href="#" :class="'zoom50 btn btn-default ' + (zoomNo == '0.5' ? 'active' : '')" @click="fnZoom(0.5)"  role="button">
                     <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>Full
