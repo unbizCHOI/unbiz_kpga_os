@@ -46,7 +46,8 @@
                             list : [] ,
                             groupNo : '',
                             holeNo : '',
-                        }
+                        },
+                        toTopStyle : '' ,
                     }
                 },
                 created: function () {
@@ -68,7 +69,7 @@
                     });
                     self.groupHole = groupHole;
                     self.getList();
-                    self.timer.woker = setInterval(function(){self.getList();}, 10 * SECOND);
+                    self.timer.woker = setInterval(function(){self.getList();}, MINUTE * SECOND);
                     self.timer.timer = setInterval(function(){self.timer.time++;}, SECOND);
                 },
                 methods: {
@@ -122,6 +123,7 @@
                     showGroupShot : function (groupNo, holeNo, isDone) {
                         //if(!isDone) return;
                         let self = this;
+                        self.toTopStyle = 'display: block; top:'  +(window.scrollY + 50) + 'px;';
                         let resp = doAjax('/timepar/shot.tf', $.extend({groupNo : groupNo, holeNo : holeNo},self.search));
                         self.modal = {
                             isOpen : true,
@@ -202,7 +204,8 @@
                     </tbody>
                 </table>
             </div>
-            <div v-if="modal.isOpen" id="holedetail" style="display: block;" >
+
+            <div v-if="modal.isOpen" id="holedetail" :style="toTopStyle" >
                 <div>
                     <h2>Group {{ modal.groupNo }} / Hole {{ modal.holeNo }} ( Par {{ course['holePar' + modal.holeNo] }})</h2>
                     <template v-for="info in modal.list">
@@ -228,7 +231,7 @@
                 <p><span class="shot_G">G</span>　그린</p>
                 <p><span class="shot_IN">IN</span> 홀인</p>
                 <p><span class="shot_B">B</span>　벙커</p>
-                <p><span class="shot_GB">GB</span>　주린 주변 벙커</p>
+                <p><span class="shot_GB">GB</span>　그린 주변 벙커</p>
                 <p><span class="shot_OB">OB</span>　OB</p>
                 <p><span class="shot_LB">LB</span>　분실구</p>
                 <p><span class="shot_PA">PA</span>　페널티구역</p>

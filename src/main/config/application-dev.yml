@@ -1,5 +1,5 @@
 server:
-  port: 9999
+  port: 17005
 
 ## html 화면 리로드
 spring.thymeleaf.cache: false
@@ -14,12 +14,12 @@ spring:
     hikari:
       type: com.zaxxer.hikari.HikariDataSource
       driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-      #jdbc-url: jdbc:log4jdbc:mysql://kpga-db-dev.cmmt58eft922.ap-northeast-2.rds.amazonaws.com:3306/kpga_db?characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false&zeroDateTimeBehavior=convertToNull
-      #username: ddfactory
-      #password: ddfactory1!
-      jdbc-url: jdbc:log4jdbc:mysql://211.216.48.147:3306/kpga_db
-      username: unbiz
-      password: Unbiz123$
+      jdbc-url: jdbc:log4jdbc:mysql://kpga-db-prod.cmmt58eft922.ap-northeast-2.rds.amazonaws.com:3306/kpga_db?characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false&zeroDateTimeBehavior=convertToNull
+      username: ddfactory
+      password: ddfactory1!
+      #jdbc-url: jdbc:log4jdbc:mysql://211.216.48.147:3306/kpga_db
+      #username: unbiz
+      #password: Unbiz123$
 
 
 

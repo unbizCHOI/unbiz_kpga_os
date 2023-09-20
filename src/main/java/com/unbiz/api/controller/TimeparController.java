@@ -99,4 +99,16 @@ public class TimeparController  extends BaseController {
         return new ModelAndView( basePath + "ime" );
     }
 
+    @RequestMapping(value = "/gun", method = {RequestMethod.GET})
+    public ModelAndView Gun(Model model) {
+        return new ModelAndView( basePath + "gun" );
+
+    }
+
+    @RequestMapping(value = "/gunpar.tf")
+    public ResultVO GunPar(@RequestBody Map parameterMap) {
+        return success(timeparService.selectHoleParCnt(parameterMap));
+    }
+
+
 }

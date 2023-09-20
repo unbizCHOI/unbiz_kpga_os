@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unbiz.api.mapper.ShinHanMapper">
+
+    <update id="updateShinhan">
+        /*updateShinhan*/
+        UPDATE kpga_db.game_score t1,(
+        <foreach collection="list" item="t" separator=" UNION ALL " >
+            SELECT #{game_id} game_id ,#{round_no} round_no ,#{t.member_id} member_id ,#{t.score_1} score_1 ,#{t.score_2} score_2 ,#{t.score_3} score_3 ,#{t.score_4} score_4 ,#{t.score_5} score_5 ,#{t.score_6} score_6 ,#{t.score_7} score_7 ,#{t.score_8} score_8 ,#{t.score_9} score_9 ,#{t.score_10} score_10 ,#{t.score_11} score_11 ,#{t.score_12} score_12 ,#{t.score_13} score_13 ,#{t.score_14} score_14 ,#{t.score_15} score_15 ,#{t.score_16} score_16 ,#{t.score_17} score_17 ,#{t.score_18} score_18 ,#{t.score_out_tot} score_out_tot ,#{t.score_in_tot} score_in_tot ,#{t.score_sum_tot} score_sum_tot, #{t.udpar_sum_tot} udpar_sum_tot , #{t.round_end_yn} round_end_yn  </foreach>
+        ) t2
+        SET
+             t1.game_id           = t2.game_id      ,t1.round_no          = t2.round_no     ,t1.member_id         = t2.member_id
+            ,t1.score_1           = t2.score_1      ,t1.score_7           = t2.score_7      ,t1.score_13          = t2.score_13
+            ,t1.score_2           = t2.score_2      ,t1.score_8           = t2.score_8      ,t1.score_14          = t2.score_14
+            ,t1.score_3           = t2.score_3      ,t1.score_9           = t2.score_9      ,t1.score_15          = t2.score_15
+            ,t1.score_4           = t2.score_4      ,t1.score_10          = t2.score_10     ,t1.score_16          = t2.score_16
+            ,t1.score_5           = t2.score_5      ,t1.score_11          = t2.score_11     ,t1.score_17          = t2.score_17
+            ,t1.score_6           = t2.score_6      ,t1.score_12          = t2.score_12     ,t1.score_18          = t2.score_18
+            ,t1.score_out_tot     = t2.score_out_tot  ,t1.score_sum_tot     = t2.score_sum_tot
+            ,t1.score_in_tot      = t2.score_in_tot   ,t1.udpar_sum_tot     = t2.udpar_sum_tot
+            ,t1.round_end_yn      = t2.round_end_yn   ,t1.update_date       = now()
+            ,t1.update_id         = 'livescoring'
+        WHERE t1.game_id = t2.game_id
+        AND t1.round_no  = t2.round_no
+        AND t1.member_id = t2.member_id
+        AND t1.update_id = 'livescoring'
+        AND t1.score_backcount IS NULL
+        AND t1.game_id   = #{game_id}
+        AND t1.round_no  = #{round_no};
+
+    </update>
+
+    <update id="updateRoundEndYn">
+        UPDATE kpga_db.game_score gs
+            JOIN kpga_db.game_round_starttime grs
+        ON  grs.game_id       = gs.game_id
+            AND grs.round_no      = gs.round_no
+            AND grs.start_time_id = gs.start_time_id
+            SET
+                gs.round_end_yn        = (
+                CASE
+                WHEN 1 = 1
+                AND score_1  != 0 AND score_2  != 0 AND score_3  != 0 AND score_4  != 0 AND score_5  != 0 AND score_6  != 0
+                AND score_7  != 0 AND score_8  != 0 AND score_9  != 0 AND score_10 != 0 AND score_11 != 0 AND score_12 != 0
+                AND score_13 != 0 AND score_14 != 0 AND score_15 != 0 AND score_16 != 0 AND score_17 != 0 AND score_18 != 0
+                THEN 'F'
+                ELSE ( CASE
+                WHEN grs.start_hole_no = '1' THEN
+                (CASE
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '2' THEN
+                (CASE
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '3' THEN
+                (CASE
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '4' THEN
+                (CASE
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '5' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '6' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '7' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '8' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '9' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '10' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '11' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '12' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '13' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '14' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '15' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '16' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '17' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                ELSE NULL
+                END
+                )
+                WHEN grs.start_hole_no = '18' THEN
+                ( CASE
+                WHEN IFNULL(gs.score_17,0) > '0' THEN '17'
+                WHEN IFNULL(gs.score_16,0) > '0' THEN '16'
+                WHEN IFNULL(gs.score_15,0) > '0' THEN '15'
+                WHEN IFNULL(gs.score_14,0) > '0' THEN '14'
+                WHEN IFNULL(gs.score_13,0) > '0' THEN '13'
+                WHEN IFNULL(gs.score_12,0) > '0' THEN '12'
+                WHEN IFNULL(gs.score_11,0) > '0' THEN '11'
+                WHEN IFNULL(gs.score_10,0) > '0' THEN '10'
+                WHEN IFNULL(gs.score_9,0)  > '0' THEN '9'
+                WHEN IFNULL(gs.score_8,0)  > '0' THEN '8'
+                WHEN IFNULL(gs.score_7,0)  > '0' THEN '7'
+                WHEN IFNULL(gs.score_6,0)  > '0' THEN '6'
+                WHEN IFNULL(gs.score_5,0)  > '0' THEN '5'
+                WHEN IFNULL(gs.score_4,0)  > '0' THEN '4'
+                WHEN IFNULL(gs.score_3,0)  > '0' THEN '3'
+                WHEN IFNULL(gs.score_2,0)  > '0' THEN '2'
+                WHEN IFNULL(gs.score_1,0)  > '0' THEN '1'
+                WHEN IFNULL(gs.score_18,0) > '0' THEN '18'
+                ELSE NULL
+                END
+                )
+                ELSE NULL
+                END
+                )
+                END)
+        WHERE 1 = 1
+          AND gs.game_id   = #{game_id}
+          AND gs.round_no  = #{round_no}  ;
+
+
+    </update>
+    <update id="updateAccuScore">
+        /**누적스코어 삽입*/
+        UPDATE kpga_db.game_score t1, (
+            SELECT t0.member_id ,SUM(t0.udpar_sum_tot) accu_sum_underpar ,SUM(t0.score_sum_tot) accu_sum_score
+            FROM kpga_db.game_score t0
+            WHERE t0.game_id = #{game_id}
+            GROUP BY t0.member_id
+            ) t2
+        SET t1.accu_sum_underpar = t2.accu_sum_underpar , t1.accu_sum_score = t2.accu_sum_score
+        WHERE t1.game_id = #{game_id} AND t1.round_no = #{round_no} AND t1.member_id = t2.member_id  AND t1.update_id = 'livescoring';
+
+    </update>
+
+    <update id="updateRank">
+
+        /**라운드랭킹 누적랭킹 삽입*/
+        UPDATE kpga_db.game_score A,
+            (SELECT
+                gs.game_id
+                ,gs.member_id
+                ,gs.round_no
+                ,CASE
+                    WHEN gs.score_sum_tot = 0 THEN 0
+                    WHEN gs.exception_yn IS NOT NULL THEN 0
+                    ELSE RANK() OVER(ORDER BY gs.score_sum_tot = 0, gs.exception_yn IS NOT NULL, gs.udpar_sum_tot ASC)
+                END round_rank
+                ,CASE
+                    WHEN gs.accu_sum_score = 0 THEN 0
+                    WHEN gs.exception_yn IS NOT NULL THEN 0
+                    ELSE RANK() OVER(ORDER BY gs.accu_sum_score = 0, gs.exception_yn IS NOT NULL, gs.accu_sum_underpar ASC )
+                END accu_rank
+                FROM kpga_db.game_score gs
+                WHERE 1 = 1
+                AND gs.game_id   = #{game_id}
+                AND gs.round_no  = #{round_no}) B
+        SET A.round_rank   = B.round_rank ,A.accu_rank    = B.accu_rank
+        WHERE 1 = 1
+          AND A.game_id       = B.game_id
+          AND A.member_id     = B.member_id
+          AND A.round_no      = B.round_no
+          AND A.game_id       = #{game_id}
+          AND A.round_no      = #{round_no};
+    </update>
+</mapper>

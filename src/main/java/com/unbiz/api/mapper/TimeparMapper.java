@@ -33,6 +33,7 @@ public interface TimeparMapper {
     Integer updateTimeparStamp(Map parameterMap);
     List<TimeparGroup> selectTimeparGroup(Map parameterMap);
     List<Map> selectFullswingDataTime();
+    List<Map> selectHoleParCnt(Map parameterMap);
 
 
 }

@@ -18,6 +18,14 @@ spring:
     allow-circular-references: true
 
 server:
+  devtools:
+    livereload:
+      enabled:true
+    restart:
+      enabled:true
+    thymeleaf:
+      cache:false
+
   servlet:
     context-path: /
     session:

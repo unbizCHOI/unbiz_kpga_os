@@ -38,6 +38,7 @@ public class TimeparService {
 
     public List<TimeparGroup> selectTimeparGroup(Map parameterMap){ return timeparMapper.selectTimeparGroup(parameterMap); }
     public List<Map> selectFullswingDataTime(){ return timeparMapper.selectFullswingDataTime(); }
+    public List<Map> selectHoleParCnt(Map parameterMap){return timeparMapper.selectHoleParCnt(parameterMap); }
 
 
 }

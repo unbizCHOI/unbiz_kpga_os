@@ -67,7 +67,7 @@
         WHERE t1.game_id = #{gameId}
         AND t1.round_no = #{roundNo}
         <if test="groupNo != '' and groupNo != null">AND t1.group_no = #{groupNo}</if>
-        ORDER BY t2.start_am_pm, t2.start_in_out DESC, t2.start_time
+        ORDER BY t2.start_am_pm, t2.start_in_out DESC, t2.exp_group_no
     </select>
 
     <insert id="insertTimeparHole" parameterType="Map">
@@ -176,6 +176,38 @@
         AND t1.round_no = t2.round_no
         AND t2.seq = (SELECT MAX(t0.seq) FROM kpga.tb_timepar_game t0)
         GROUP BY t1.hole_no;
+    </select>
+
+    <select id="selectHoleParCnt" resultType="Map">
+        /*selectHoleParCnt*/
+        /*홀별 */
+        SELECT
+            t1.member_id
+             ,t1.round_no
+             ,CASE WHEN t1.score_1  = 0 THEN 999 ELSE (t1.score_1  - t2.hole_par_1 ) END hole1
+             ,CASE WHEN t1.score_2  = 0 THEN 999 ELSE (t1.score_2  - t2.hole_par_2 ) END hole2
+             ,CASE WHEN t1.score_3  = 0 THEN 999 ELSE (t1.score_3  - t2.hole_par_3 ) END hole3
+             ,CASE WHEN t1.score_4  = 0 THEN 999 ELSE (t1.score_4  - t2.hole_par_4 ) END hole4
+             ,CASE WHEN t1.score_5  = 0 THEN 999 ELSE (t1.score_5  - t2.hole_par_5 ) END hole5
+             ,CASE WHEN t1.score_6  = 0 THEN 999 ELSE (t1.score_6  - t2.hole_par_6 ) END hole6
+             ,CASE WHEN t1.score_7  = 0 THEN 999 ELSE (t1.score_7  - t2.hole_par_7 ) END hole7
+             ,CASE WHEN t1.score_8  = 0 THEN 999 ELSE (t1.score_8  - t2.hole_par_8 ) END hole8
+             ,CASE WHEN t1.score_9  = 0 THEN 999 ELSE (t1.score_9  - t2.hole_par_9 ) END hole9
+             ,CASE WHEN t1.score_10 = 0 THEN 999 ELSE (t1.score_10 - t2.hole_par_10) END hole10
+             ,CASE WHEN t1.score_11 = 0 THEN 999 ELSE (t1.score_11 - t2.hole_par_11) END hole11
+             ,CASE WHEN t1.score_12 = 0 THEN 999 ELSE (t1.score_12 - t2.hole_par_12) END hole12
+             ,CASE WHEN t1.score_13 = 0 THEN 999 ELSE (t1.score_13 - t2.hole_par_13) END hole13
+             ,CASE WHEN t1.score_14 = 0 THEN 999 ELSE (t1.score_14 - t2.hole_par_14) END hole14
+             ,CASE WHEN t1.score_15 = 0 THEN 999 ELSE (t1.score_15 - t2.hole_par_15) END hole15
+             ,CASE WHEN t1.score_16 = 0 THEN 999 ELSE (t1.score_16 - t2.hole_par_16) END hole16
+             ,CASE WHEN t1.score_17 = 0 THEN 999 ELSE (t1.score_17 - t2.hole_par_17) END hole17
+             ,CASE WHEN t1.score_18 = 0 THEN 999 ELSE (t1.score_18 - t2.hole_par_18) END hole18
+        FROM kpga_db.game_score t1
+        LEFT OUTER JOIN kpga_db.game_course t2
+        ON t1.game_id = t2.game_id
+        WHERE t1.game_id = #{gameId}
+          AND t1.round_no = #{roundNo}
+
     </select>
 
 </mapper>
