@@ -10,6 +10,9 @@
         th.par4{ background-color: #072607; color: #fff;}
         th.par5{ background-color: #821302; color: #fff;}
         .even{ background-color: yellow; }
+        .topText {float: right; font-size: 0.8rem; margin-top: 10px; margin-right: 2px;}
+        .timeOut {float: left; font-size: 0.8rem; margin-left: 5px; margin-right: 2px;}
+        .timeIn {float: right; font-size: 0.8rem; margin-right: 5px; margin-right: 2px;}
     </style>
 
 </th:block>
@@ -26,6 +29,13 @@
                         search : {
                             gameId : '[[${gameId}]]',
                             roundNo : '[[${roundNo}]]',
+                        },
+                        timeSetInfo : {
+                            outTime : '',
+                            inTime : '',
+                            totalTime : '',
+                            sunrise : '',
+                            sunset : '',
                         },
                         gameInfo : {},
                         course :{},
@@ -55,7 +65,7 @@
                     let resp = doAjax('/timepar/game.tf', {});
                     self.search.gameId = resp.data.gameId;
                     self.search.roundNo = resp.data.roundNo;
-
+                    self.timeSetInfo = resp.data;
                     resp = doAjax('/api/game.tf', { apcYear : new Date().getFullYear(), tourId : '11', gameId : self.search.gameId});
                     self.gameInfo = resp.data[0];
                     resp = doAjax('/api/course.tf', { gameId : self.search.gameId});
@@ -69,7 +79,7 @@
                     });
                     self.groupHole = groupHole;
                     self.getList();
-                    self.timer.woker = setInterval(function(){self.getList();}, MINUTE * SECOND);
+                    self.timer.woker = setInterval(function(){self.getList();}, 10 * SECOND);
                     self.timer.timer = setInterval(function(){self.timer.time++;}, SECOND);
                 },
                 methods: {
@@ -133,29 +143,7 @@
                         }
                     },
                     getShotTxt : function (field) {
-                        let txt = '-';
-                        if(field == '1'){
-                            txt = 'F';
-                        } else if(field == '2'){
-                            txt = 'R';
-                        } else if(field == '3'){
-                            txt = 'G';
-                        } else if(field == '4'){
-                            txt = 'OB';
-                        } else if(field == '5'){
-                            txt = 'PA';
-                        } else if(field == '6'){
-                            txt = 'B';
-                        } else if(field == '7'){
-                            txt = 'LB';
-                        } else if(field == '8'){
-                            txt = 'PS';
-                        } else if(field == '9'){
-                            txt = 'GB';
-                        } else if(field == '10'){
-                            txt = 'IN';
-                        }
-                        return txt;
+                        return ['','F','R','G','OB','PA','B','LB','PS','GB','IN'][Number(field)];
                     },
                     isShowHole : function () {
                         let self = this;
@@ -172,16 +160,25 @@
     <div id="app">
         <div id="headerCont">
             <a @click="isShowHole()" class="btn btn-default help">？</a>
+            <span class="help topText"  style="margin-right: 5px !important;">총시간:{{ timeSetInfo.totalTime }}</span>
+            <span class="help topText"  style="margin-right: 5px !important;">일몰:{{ timeSetInfo.sunset }}</span>
+            <span class="help topText"  style="margin-right: 5px !important;">일출:{{ timeSetInfo.sunrise }}</span>
         </div>
         <div id="container2">
-            <h1>Pace of Play Time</h1>
-            <div id="tourinfo">{{ gameInfo.gameName }} {{ search.roundNo }}R</div>
+            <h1>{{ gameInfo.gameName }} {{ search.roundNo }}R</h1>
+            <div id="tourinfo">Pace of Play Time</div>
             <div class="btn-group" role="group">
                 <a class="btn btn-primary" role="button" @click="getList()">
                      Refresh <span >{{ timer.time }}</span>
                 </a>
             </div>
             <div><span id="time">{{ timer.lastTime }}</span></div>
+
+            <div>
+                <span class="timeOut">Out 코스 {{ timeSetInfo.outTime }}</span>
+                <span class="timeIn">In 코스 {{ timeSetInfo.inTime }}</span>
+            </div>
+
             <div id="tablewrap">
                 <table id="tablestroke" :style="'transform: scale(' + zoomNo + '); transform-origin: 0px 0px;'">
                     <tbody>
@@ -227,9 +224,9 @@
                 <p><span class="plus2">Number</span>　느리다 (10분 이상)</p>
                 <h4>Shot detail</h4>
                 <p><span class="shot_F">F</span>　페어웨이</p>
-                <p><span class="shot_R">R</span>  러프</p>
+                <p><span class="shot_R">R</span>　러프</p>
                 <p><span class="shot_G">G</span>　그린</p>
-                <p><span class="shot_IN">IN</span> 홀인</p>
+                <p><span class="shot_IN">IN</span>　홀인</p>
                 <p><span class="shot_B">B</span>　벙커</p>
                 <p><span class="shot_GB">GB</span>　그린 주변 벙커</p>
                 <p><span class="shot_OB">OB</span>　OB</p>

@@ -30,6 +30,13 @@
                             gameId : '',
                             roundNo: '',
                         },
+                        timeSetInfo : {
+                            outTime : '',
+                            inTime : '',
+                            totalTime : '',
+                            sunrise : '',
+                            sunset : '',
+                        },
                         excel : {
                             gameId : '',
                             roundNo: '1',
@@ -54,6 +61,7 @@
                             getGame :function () {
                                 let resp = doAjax('/timepar/game.tf', {});
                                 self.game = resp.data;
+                                self.timeSetInfo = resp.data;
                                 self.excel.gameId = resp.data.gameId;
                                 self.excel.roundNo = resp.data.roundNo;
                             },
@@ -61,7 +69,7 @@
                                 if(self.game.gameId.length < 5){
                                     alert('대회코드를 입력해 주세요');
                                 } else {
-                                    let resp = doAjax('/timepar/game/save.tf', self.game);
+                                    let resp = doAjax('/timepar/game/save.tf', $.extend(self.game, self.timeSetInfo) );
                                     self.doBase().getGame();
                                     alert('처리 되었습니다.');
                                 }
@@ -157,35 +165,50 @@
                                 <div class="searchForm">
                                     <table class="tblSearch" style="text-align: center">
                                         <colgroup>
-                                            <col width="10%">
-                                            <col width="20%">
-                                            <col width="10%">
-                                            <col width="10%">
                                             <col width="5%">
-                                            <col width="10%">
+                                            <col width="5%">
+                                            <col width="5%">
+                                            <col width="5%">
+                                            <col width="5%">
+                                            <col width="5%">
+                                            <col width="5%">
+                                            <col width="5%">
+                                            <col width="5%">
+                                            <col width="5%">
+                                            <col width="5%">
+                                            <col width="5%">
                                             <col width="*">
                                         </colgroup>
                                         <tbody>
-                                        <tr>
-                                            <td> 대회코드 </td>
-                                            <td>
-                                                <select class="form-control" v-model="game.gameId">
-                                                    <option v-for="gInfo in list" :value="gInfo.gameId">{{ gInfo.gameName }} </option>
-                                                </select>
-                                            </td>
+                                            <tr>
+                                                <td> 대회코드 </td>
+                                                <td colspan="7">
+                                                    <select class="form-control" v-model="game.gameId">
+                                                        <option v-for="gInfo in list" :value="gInfo.gameId">{{ gInfo.gameName }} </option>
+                                                    </select>
+                                                </td>
 
-
-                                            <td> 라운드 </td>
-                                            <td>
-                                                <select class="form-control" v-model="game.roundNo">
-                                                    <option v-for="roundNo in 4" :value="roundNo">{{ roundNo }}R</option>
-                                                </select>
-                                            </td>
-                                            <td></td>
-                                            <td> <button class="btnShot" @click="doBase().save()">저장</button> </td>
-                                            <td></td>
-                                            <td> </td>
-                                        </tr>
+                                                <td> 라운드 </td>
+                                                <td>
+                                                    <select class="form-control" v-model="game.roundNo">
+                                                        <option v-for="roundNo in 4" :value="roundNo">{{ roundNo }}R</option>
+                                                    </select>
+                                                </td>
+                                                <td></td>
+                                                <td> <button class="form-control"  @click="doBase().save()">저장</button> </td>
+                                            </tr>
+                                            <tr>
+                                                <td> OUT </td>
+                                                <td> <input type="text" class="form-control" v-model="timeSetInfo.outTime"></td>
+                                                <td> IN </td>
+                                                <td> <input type="text" class="form-control" v-model="timeSetInfo.inTime"></td>
+                                                <td> TOTAL </td>
+                                                <td> <input type="text" class="form-control" v-model="timeSetInfo.totalTime"></td>
+                                                <td> 일출 </td>
+                                                <td> <input type="text" class="form-control" v-model="timeSetInfo.sunrise"></td>
+                                                <td> 일몰 </td>
+                                                <td> <input type="text" class="form-control" v-model="timeSetInfo.sunset"></td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>

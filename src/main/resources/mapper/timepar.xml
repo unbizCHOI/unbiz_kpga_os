@@ -86,7 +86,14 @@
 
     <select id="selectTimeparGame" resultType="Map">
         /**insertTimeparGame*/
-        SELECT t1.game_id gameId, t1.round_no roundNo
+        SELECT
+            t1.game_id gameId
+            ,t1.round_no roundNo
+            ,t1.out_time   outTime
+            ,t1.in_time    inTime
+            ,t1.total_time totalTime
+            ,t1.sunrise
+            ,t1.sunset
         FROM kpga.tb_timepar_game t1
         WHERE t1.seq = (SELECT MAX(t2.seq) FROM kpga.tb_timepar_game t2)
     </select>
@@ -94,7 +101,8 @@
 
     <insert id="insertTimeparGame">
         /**insertTimeparGame*/
-        INSERT INTO kpga.tb_timepar_game (game_id, round_no) VALUES (#{gameId}, #{roundNo})
+        INSERT INTO kpga.tb_timepar_game (game_id, round_no, out_time, in_time, total_time, sunrise, sunset)
+        VALUES (#{gameId}, #{roundNo}, #{outTime}, #{inTime}, #{totalTime}, #{sunrise}, #{sunset})
     </insert>
 
     <insert id="insertTimeparStamp">
