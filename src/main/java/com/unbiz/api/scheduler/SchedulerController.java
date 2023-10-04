@@ -41,15 +41,33 @@ public class SchedulerController {
 		parameterMap.put("apcYear", new Date().getYear());
 	}
 
+	/** 6시-10시 목 -일*/
+	@Scheduled(cron="3 * 6-10 * * 4-7")
+	public void nearpin() throws Exception {
+		if("prod".equals(active)) {
+			schedulerService.doNearpinEnd();
+		}
+	}
 
-	@Scheduled(cron="*/5 * * * * *")
+	/** 6시-10시 금 -일*/
+	@Scheduled(cron="8 * 6-10 * * 5-7")
+	public void roundState() throws Exception {
+		if("prod".equals(active)) {
+			schedulerService.doRoundState();
+		}
+	}
+
+
+	/**KpsaTOGms*/
+	@Scheduled(cron="*/5 * * * * 4-7")
 	public void kpsaTOGms() throws Exception {
 		if("prod".equals(active)) {
 			schedulerService.doKpsaToGms();
 		}
 	}
 
-	@Scheduled(cron="*/5 * * * * *")
+	/**타임파*/
+	@Scheduled(cron="*/5 * * * * 5-7")
 	public void timePar() throws Exception {
 		if("prod".equals(active)) {
 			schedulerService.updateTimepar();
@@ -58,8 +76,6 @@ public class SchedulerController {
 
 	@Scheduled(cron="0 0 23 * * *")
 	public void backup() throws Exception {
-		System.out.println("시작: " + new Date().getYear());
-
 		if(ObjectUtils.isEmpty(parameterMap)) initParameter();
 
 		long beforeTime = System.currentTimeMillis();
@@ -225,13 +241,8 @@ public class SchedulerController {
 		list.add("honors_member");
 		list.add("honors_schedule");
 		list.add("honors_view_type");
-		//list.add("incs_tx_crosschk");
-		//list.add("incs_tx_error");
 		list.add("incs_tx_item");
-		//list.add("incs_tx_log");
-		//list.add("incs_tx_mobile_result");
 		list.add("incs_tx_mst");
-		//list.add("incs_tx_result");
 		list.add("logonuserinfolist");
 		list.add("main_layout_setting");
 		list.add("main_layout_style");
@@ -268,23 +279,11 @@ public class SchedulerController {
 		list.add("mgmt_tour");
 		list.add("mgmt_tour_category");
 		list.add("mgmt_tour_seed");
-		//list.add("msg_result");
 		list.add("opi_bill_billkey");
 		list.add("opi_bill_cardbilling");
 		list.add("opi_dues_excel_member");
 		list.add("opi_dues_exception");
 		list.add("opi_dues_month");
-		//list.add("opi_dues_mst");
-		//list.add("opi_dues_mst_0518");
-		//list.add("opi_dues_mst_dtl");
-		//list.add("opi_dues_mst_dtl_excel");
-		//list.add("opi_dues_mst_excel");
-		//list.add("opi_dues_req");
-		//list.add("opi_dues_req_excel");
-		//list.add("opi_insurance_fee");
-		//list.add("opi_join_fee");
-		//list.add("opi_mbrship_amt");
-		//list.add("opi_mbrship_krtour");
 		list.add("penalty_req");
 		list.add("pension_bereaved");
 		list.add("pension_dtl");

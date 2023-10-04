@@ -2,6 +2,69 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.unbiz.api.mapper.SchedulerMapper">
 
+    <select id="selectNearpinEnd" resultType="Map">
+        /**selectNearpinEnd*/
+        /**니어핀 종료시작 체크*/
+        SELECT
+             t1.event_sq    eventSq
+            ,t2.round_no    roundNo
+            ,t2.end_date    endDate
+            ,t1.game_id     gameId
+            ,t2.hole_no     holeNo
+        FROM kpga.event_mst t1
+        JOIN kpga.event_near t2
+        ON t1.event_sq = t2.event_sq
+        JOIN kpga.tb_timepar_game t3
+        ON t1.game_id = t3.game_id
+        AND t2.round_no = t3.round_no
+        AND t3.seq = (SELECT MAX(t0.seq) FROM kpga.tb_timepar_game t0);
+    </select>
+
+    <select id="selectShotCount" resultType="Integer">
+        /**selectShotCount*/
+        /**해당홀 샷 여부*/
+        SELECT COUNT(1)
+        FROM kpga.track3d_shot_info t1
+        WHERE t1.game_id  = #{gameId}
+          AND t1.round_no = #{roundNo}
+        <if test='!@org.springframework.util.ObjectUtils@isEmpty(holeNo)'> AND t1.hole_no = #{holeNo} </if>
+    </select>
+
+    <update id="updateNearpinEndDate">
+        /**updateNearpinEndDate*/
+        /**니어핀종료*/
+        UPDATE kpga.event_near t1
+        SET t1.end_date = NOW()
+        WHERE t1.event_sq = #{eventSq}
+          AND t1.round_no = #{roundNo}
+    </update>
+
+    <select id="selectGameRoundState" resultType="Map">
+        /**selectGameRoundState*/
+        /**라운드 상태 조회*/
+        SELECT
+             t1.game_id         gameId
+            ,t1.round_no        roundNo
+        FROM kpga_db.game_round t1
+        JOIN kpga.tb_timepar_game t2
+        ON t1.game_id = t2.game_id
+        AND t1.round_no = t2.round_no
+        AND t1.round_no > 1
+        AND t1.round_state = '1'
+        AND t2.seq = (SELECT MAX(t0.seq) FROM kpga.tb_timepar_game t0)
+    </select>
+
+    <update id="updateGameRoundState">
+        /**updateGameRoundState*/
+        /**라운드상태수정*/
+        UPDATE kpga_db.game_round t1
+        SET t1.round_state = '2'
+        WHERE t1.game_id   = #{gameId}
+          AND t1.round_no  = #{roundNo}
+    </update>
+
+
+
     <select id="selectKpsaToGms" resultType="Integer">
         /**selectKpsaToGms*/
         SELECT t1.vod_seq

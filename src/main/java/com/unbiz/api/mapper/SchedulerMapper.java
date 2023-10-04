@@ -20,12 +20,17 @@ import java.util.Map;
  */
 @Mapper
 public interface SchedulerMapper {
+
+
+    public Map selectNearpinEnd();
+    public Integer selectShotCount(Map parameterMap);
+    public void updateNearpinEndDate(Map parameterMap);
+    public Map selectGameRoundState();
+    public void updateGameRoundState(Map parameterMap);
     public Integer selectKpsaToGms();
     public void insertKpsaToGms(Map parameterMap);
     public void insertKpsaToGmsFile(Map parameterMap);
     public void updateKpsaToGms(Map parameterMap);
-
     public List<Map> selectSchedulerAll(Map parameterMap);
-
     public void updateTimepar();
 }
