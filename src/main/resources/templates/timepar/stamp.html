@@ -13,6 +13,7 @@
         .topText {float: right; font-size: 0.8rem; margin-top: 10px; margin-right: 2px;}
         .timeOut {float: left; font-size: 0.8rem; margin-left: 5px; margin-right: 2px;}
         .timeIn {float: right; font-size: 0.8rem; margin-right: 5px; margin-right: 2px;}
+        .no_dot { list-style-type: none; }
     </style>
 
 </th:block>
@@ -160,7 +161,6 @@
     <div id="app">
         <div id="headerCont">
             <a @click="isShowHole()" class="btn btn-default help">？</a>
-            <span class="help topText"  style="margin-right: 5px !important;">총시간:{{ timeSetInfo.totalTime }}</span>
             <span class="help topText"  style="margin-right: 5px !important;">일몰:{{ timeSetInfo.sunset }}</span>
             <span class="help topText"  style="margin-right: 5px !important;">일출:{{ timeSetInfo.sunrise }}</span>
         </div>
@@ -172,13 +172,12 @@
                      Refresh <span >{{ timer.time }}</span>
                 </a>
             </div>
-            <div><span id="time">{{ timer.lastTime }}</span></div>
-
+            <div> <span id="time">{{ timer.lastTime }}</span> </div>
+            <div> <span class="timeIn" >총시간:{{ timeSetInfo.totalTime }}</span> </div><br/>
             <div>
                 <span class="timeOut">Out 코스 {{ timeSetInfo.outTime }}</span>
                 <span class="timeIn">In 코스 {{ timeSetInfo.inTime }}</span>
             </div>
-
             <div id="tablewrap">
                 <table id="tablestroke" :style="'transform: scale(' + zoomNo + '); transform-origin: 0px 0px;'">
                     <tbody>

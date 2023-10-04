@@ -41,8 +41,16 @@ public class SchedulerController {
 		parameterMap.put("apcYear", new Date().getYear());
 	}
 
+
 	@Scheduled(cron="*/5 * * * * *")
-	public void backup22() throws Exception {
+	public void kpsaTOGms() throws Exception {
+		if("prod".equals(active)) {
+			schedulerService.doKpsaToGms();
+		}
+	}
+
+	@Scheduled(cron="*/5 * * * * *")
+	public void timePar() throws Exception {
 		if("prod".equals(active)) {
 			schedulerService.updateTimepar();
 		}

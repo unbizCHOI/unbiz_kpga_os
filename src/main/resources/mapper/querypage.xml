@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unbiz.api.mapper.QueryPageMapper">
+
+    <select id="selectQuery" resultType="Map" parameterType="Map">
+        ${queryStr}
+    </select>
+
+    <select id="selectQueryText" resultType="String">
+        /*selectQueryText*/
+        SELECT query_str FROM  kpga.tb_query_select
+        where query_name = #{queryName}
+    </select>
+</mapper>

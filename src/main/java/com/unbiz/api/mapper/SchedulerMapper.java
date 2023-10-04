@@ -20,7 +20,12 @@ import java.util.Map;
  */
 @Mapper
 public interface SchedulerMapper {
+    public Integer selectKpsaToGms();
+    public void insertKpsaToGms(Map parameterMap);
+    public void insertKpsaToGmsFile(Map parameterMap);
+    public void updateKpsaToGms(Map parameterMap);
+
     public List<Map> selectSchedulerAll(Map parameterMap);
 
-    void updateTimepar();
+    public void updateTimepar();
 }

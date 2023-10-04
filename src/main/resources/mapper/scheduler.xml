@@ -2,6 +2,79 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.unbiz.api.mapper.SchedulerMapper">
 
+    <select id="selectKpsaToGms" resultType="Integer">
+        /**selectKpsaToGms*/
+        SELECT t1.vod_seq
+        FROM kpga.kpsa_vod_mst t1
+        JOIN kpga.kpsa_file t2 ON t1.vod_seq = t2.vod_seq AND t2.vod_type = 1 AND t2.vod_rate = 1
+        JOIN kpga.tb_timepar_game t3 ON t1.round_no = t3.round_no AND t1.game_id = t3.game_id AND t3.seq = (SELECT MAX(t0.seq) FROM kpga.tb_timepar_game t0 )
+        WHERE t1.mod_user IS NULL
+        LIMIT 1
+    </select>
+
+    <insert id="insertKpsaToGms">
+        /**insertKpsaToGms*/
+        INSERT INTO kpga.gms_vod_mst (
+           vod_type, game_id, region_group_course_id, game_subgroup_code, golfclub_id, tour_id
+         , apc_year, member_id, game_date, game_day, round_no, round_nm, hole_no, shot_club
+         , shot_no, shot_position, shot_state, vod_speed, reg_user, reg_date)
+        SELECT
+             'game'      vod_type
+             ,t1.game_id
+             ,t2.region_group_course_id
+             ,t2.game_subgroup_code
+             ,t1.golfclub_id
+             ,t1.tour_id
+             ,t1.apc_year
+             ,t1.member_id
+             ,t1.game_date
+             ,t1.game_day
+             ,t1.round_no
+             ,t1.round_nm
+             ,t1.hole_no
+             ,t1.shot_club
+             ,t1.shot_no
+             ,t1.shot_position
+             ,t1.shot_state
+             ,t1.vod_speed
+             ,999  reg_user
+             ,NOW(6) reg_date
+        FROM kpga.kpsa_vod_mst t1
+        LEFT OUTER JOIN kpga_db.game_course t2 ON t1.game_id = t2.game_id
+        WHERE t1.vod_seq  = #{vodSeq};
+
+        <selectKey keyProperty="seq" resultType="int" order="AFTER">
+            <![CDATA[ SELECT LAST_INSERT_ID() AS seq ]]>
+        </selectKey>
+    </insert>
+
+    <insert id="insertKpsaToGmsFile">
+        /**insertKpsaToGmsFile*/
+        INSERT INTO kpga.gms_file (seq, file_path, file_name, original_file_name, file_size, thum_path, thum_name, thum_try_cnt, is_thum)
+        SELECT
+            #{seq} seq
+             ,SUBSTR(t1.file_path,2, 24 )  file_path
+             ,SUBSTR(t1.file_path,27, LENGTH(t1.file_path)) file_name
+             ,'schedule.mp4' original_file_name
+             ,0 file_size
+             ,SUBSTR(t1.thum_path,2, 24 )  thum_path
+             ,SUBSTR(t1.thum_path,27, LENGTH(t1.file_path)) thum_name
+             ,1 thum_try_cnt
+             ,'Y' is_thum
+        FROM kpga.kpsa_file t1
+        WHERE t1.vod_seq = #{vodSeq}
+          AND t1.vod_type = 1
+          AND t1.vod_rate = 1;
+    </insert>
+
+    <update id="updateKpsaToGms">
+        /**updateKpsaToGms*/
+        UPDATE kpga.kpsa_vod_mst
+        SET mod_user = 'schedule'
+        WHERE vod_seq = #{vodSeq}
+    </update>
+
+
     <update id="updateTimepar">
         /**updateTimepar*/
         SET @gameId = ( SELECT t1.game_id FROM kpga.tb_timepar_game t1 WHERE t1.seq = (SELECT MAX(t2.seq) FROM kpga.tb_timepar_game t2));
