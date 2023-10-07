@@ -58,12 +58,13 @@
         /**updateGameRoundState*/
         /**라운드상태수정*/
         UPDATE kpga_db.game_round t1
-        SET t1.round_state = '2'
+        SET
+           t1.current_round_yn = CASE WHEN t1.round_no = #{roundNo} THEN 'Y' ELSE 'N' END
+          ,t1.round_state      = CASE WHEN t1.round_no = #{roundNo} THEN '2' ELSE t1.round_state END
+          ,t1.updateId         = CASE WHEN t1.round_no = #{roundNo} THEN 'unbizs' ELSE t1.updateId END
+          ,t1.updateDt         = CASE WHEN t1.round_no = #{roundNo} THEN NOW() ELSE t1.updateDt END
         WHERE t1.game_id   = #{gameId}
-          AND t1.round_no  = #{roundNo}
     </update>
-
-
 
     <select id="selectKpsaToGms" resultType="Integer">
         /**selectKpsaToGms*/
@@ -127,7 +128,8 @@
         FROM kpga.kpsa_file t1
         WHERE t1.vod_seq = #{vodSeq}
           AND t1.vod_type = 1
-          AND t1.vod_rate = 1;
+          AND t1.vod_rate = 1
+        LIMIT 1 ;
     </insert>
 
     <update id="updateKpsaToGms">

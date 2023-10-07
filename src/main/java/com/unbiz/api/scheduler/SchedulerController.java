@@ -41,16 +41,16 @@ public class SchedulerController {
 		parameterMap.put("apcYear", new Date().getYear());
 	}
 
-	/** 6시-10시 목 -일*/
-	@Scheduled(cron="3 * 6-10 * * 4-7")
+	/** 6시-13시 목 -일*/
+	@Scheduled(cron="*/30 * 6-13 * * 4-7")
 	public void nearpin() throws Exception {
 		if("prod".equals(active)) {
 			schedulerService.doNearpinEnd();
 		}
 	}
 
-	/** 6시-10시 금 -일*/
-	@Scheduled(cron="8 * 6-10 * * 5-7")
+	/** 6시-13시 금 -일*/
+	@Scheduled(cron="8 * 6-13 * * 5-7")
 	public void roundState() throws Exception {
 		if("prod".equals(active)) {
 			schedulerService.doRoundState();
@@ -67,7 +67,7 @@ public class SchedulerController {
 	}
 
 	/**타임파*/
-	@Scheduled(cron="*/5 * * * * 5-7")
+	@Scheduled(cron="* * * * * 5-7")
 	public void timePar() throws Exception {
 		if("prod".equals(active)) {
 			schedulerService.updateTimepar();
