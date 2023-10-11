@@ -92,7 +92,7 @@ public class TimeparController  extends BaseController {
     @RequestMapping(value = "/fs.tf")
     public ResultVO selectfs(@RequestBody Map parameterMap) {
         return success(timeparService.selectFullswingDataTime());
-    }
+}
 
     @RequestMapping(value = "/ime", method = {RequestMethod.GET})
     public ModelAndView pagess(Model model) {

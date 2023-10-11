@@ -67,7 +67,7 @@ public class SchedulerController {
 	}
 
 	/**타임파*/
-	@Scheduled(cron="* * * * * 5-7")
+	@Scheduled(cron="* * * * * 4-7")
 	public void timePar() throws Exception {
 		if("prod".equals(active)) {
 			schedulerService.updateTimepar();
