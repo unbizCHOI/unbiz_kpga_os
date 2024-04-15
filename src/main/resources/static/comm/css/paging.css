@@ -1,0 +1,4 @@
+.pagination{text-align:center;display:block;margin-top:20px;}
+.pagination a{font-size:13px;display:inline-block;border:1px solid #888;transition:all ease .2s;border-radius:100%;width:30px;height:30px;line-height:27px;text-align:center;vertical-align:middle;margin:0 3px;color:#888;}
+.pagination a:hover{background:#3886e6;color:#fff;border:none;}
+.pagination a.active{background:#3886e6;color:#fff;border:none;}

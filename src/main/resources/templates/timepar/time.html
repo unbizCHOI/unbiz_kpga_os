@@ -10,7 +10,8 @@
         .btnTd button{background: #273140 !important; color: #fff !important; ; width: 40px; height :30px; }
         .tr1 {background: #3d9970;}
         body:not(.sidebar-mini-md) .content-wrapper, body:not(.sidebar-mini-md) .main-footer, body:not(.sidebar-mini-md) .main-header { margin-left: 1px !important; }
-        .bodyOff{overflow:hidden}.gpmodalCover{overflow:hidden;background:rgba(0,0,0,.6);z-index:999;position:fixed;width:100%;height:100%;top:0;left:0}.gpmodal{position:fixed;z-index:999;left:0;top:0;width:100%;height:100%}.gpmodalClose{color:#aaa;font-size:28px;font-weight:bold;float:right;display:inline-block}.gpmodalClose:hover,.gpmodalClose:focus{color:black;text-decoration:none;cursor:pointer}.gpmodalCont{box-sizing:border-box;border-radius:10px;background-color:#fefefe;margin:9%auto;padding:20px;border:1px solid#888;width:600px;overflow:hidden;box-shadow:2px 2px 6px rgba(0,0,0,.2)}.gpmodalHeader{border-bottom:1px solid#ccc;padding-bottom:10px}.gpmodalHeader>.tit{float:left;font-size:18px;font-weight:bold;color:#696969;line-height:28px}.gpmodalBody{box-sizing:border-box;width:100%;word-break:break-all;line-height:1.4;max-height:500px;overflow-y:auto;margin-top:20px;padding:0 10px}.gpmodalBody.mark01{display:block;width:60px;height:60px;background:url('../img/mark01.png')no-repeat center;background-size:60px 60px;margin:0px auto 20px;text-align:center}.gpmodalBody.mark02{display:block;width:60px;height:60px;background:url('../img/mark02.png')no-repeat center;background-size:60px 60px;margin:0px auto 20px;text-align:center}.gpmodalBody.gpmodalTblWrap{margin-bottom:20px}.gpmodalBody.gpmodalTblWrap p{border-radius:10px 0;font-size:18px;margin-bottom:10px;font-weight:bold;text-align:center;background:#235994;color:#fff;padding:5px}.gpmodalBody.newTbl_basic{width:100%}}.gpmodalBody.newTbl_basic tbody td{padding:5px;font-size:14px}.gpmodalFooter{margin-top:20px;padding-top:20px;text-align:center;border-top:1px solid#ccc}
+        .bodyOff{overflow:hidden}
+        .gpmodalCover{overflow:hidden;background:rgba(0,0,0,.6);z-index:999;position:fixed;width:100%;height:100%;top:0;left:0}.gpmodal{position:fixed;z-index:999;left:0;top:0;width:100%;height:100%}.gpmodalClose{color:#aaa;font-size:28px;font-weight:bold;float:right;display:inline-block}.gpmodalClose:hover,.gpmodalClose:focus{color:black;text-decoration:none;cursor:pointer}.gpmodalCont{box-sizing:border-box;border-radius:10px;background-color:#fefefe;margin:9%auto;padding:20px;border:1px solid#888;width:600px;overflow:hidden;box-shadow:2px 2px 6px rgba(0,0,0,.2)}.gpmodalHeader{border-bottom:1px solid#ccc;padding-bottom:10px}.gpmodalHeader>.tit{float:left;font-size:18px;font-weight:bold;color:#696969;line-height:28px}.gpmodalBody{box-sizing:border-box;width:100%;word-break:break-all;line-height:1.4;max-height:500px;overflow-y:auto;margin-top:20px;padding:0 10px}.gpmodalBody.mark01{display:block;width:60px;height:60px;background:url('../img/mark01.png')no-repeat center;background-size:60px 60px;margin:0px auto 20px;text-align:center}.gpmodalBody.mark02{display:block;width:60px;height:60px;background:url('../img/mark02.png')no-repeat center;background-size:60px 60px;margin:0px auto 20px;text-align:center}.gpmodalBody.gpmodalTblWrap{margin-bottom:20px}.gpmodalBody.gpmodalTblWrap p{border-radius:10px 0;font-size:18px;margin-bottom:10px;font-weight:bold;text-align:center;background:#235994;color:#fff;padding:5px}.gpmodalBody.newTbl_basic{width:100%}}.gpmodalBody.newTbl_basic tbody td{padding:5px;font-size:14px}.gpmodalFooter{margin-top:20px;padding-top:20px;text-align:center;border-top:1px solid#ccc}
     </style>
 </th:block>
 <th:block layout:fragment="script">
@@ -47,7 +48,6 @@
                             info : {},
                             holeNo: -1
                         }
-
                     }
                 },
                 created: function () {
@@ -65,7 +65,7 @@
                     });
                     self.groupHole = groupHole;
 
-                    resp = doAjax('/api/game.tf', { apcYear : new Date().getFullYear(), tourId : '11', gameId : self.search.gameId});
+                    resp = doAjax('/api/game.tf', { apcYear : /*new Date().getFullYear()*/ 2023, tourId : '11', gameId : self.search.gameId});
                     self.gameInfo = resp.data[0];
 
                     self.doBase().getList();

@@ -47,6 +47,12 @@ public class AdmSubService {
             cnt += admSubMapper.deletePrepare(parameter);
             cnt += admSubMapper.insertTrack3dCourse(parameter);
             cnt += admSubMapper.insertGroupMarker(parameter);
+        } else if("kpgagroupmarker".equals(aUrl)){
+            cnt += admSubMapper.deleteGroupMarker(parameter);
+            cnt += admSubMapper.insertGroupMarker(parameter);
+        } else if("kpgacourse".equals(aUrl)){
+            cnt += admSubMapper.deleteCourse(parameter);
+            cnt += admSubMapper.insertKPGACourse(parameter);
         }
 
         resultMap.put("cnt", cnt);

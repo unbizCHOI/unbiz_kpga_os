@@ -27,4 +27,9 @@ public interface AdmSubMapper {
     public List<Map> selectSubTrack3dCourse(Map parameterMap);
 
 
+    public int deleteGroupMarker(Map parameterMap);
+    public int deleteCourse(Map parameterMap);
+    public int insertKPGACourse(Map parameterMap);
+
+
 }

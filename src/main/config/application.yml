@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod
+    active: dev
   tomcat:
     uri-encoding: UTF-8
   devtools:

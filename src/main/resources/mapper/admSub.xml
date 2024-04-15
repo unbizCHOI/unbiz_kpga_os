@@ -84,7 +84,7 @@
              ,t1.exp_group_no
              ,t1.exp_group_no
              ,@STDDATE
-             ,t1.exp_group_no
+             ,t1.start_time_id
              ,'0'
         FROM kpga_db.game_round_starttime t1
         WHERE t1.game_id = #{gameId}
@@ -110,4 +110,41 @@
         /* 저장 프로시저 호출 */
         call kpga.sp_put_score_test( #{gameId}, #{roundNo}, #{courseId}, #{holeNo}, #{memberId}, #{userId} );
     </update>
+
+    <delete id="deleteGroupMarker" parameterType="Map">
+        /**deleteGroupMarker*/
+        /**KPGA 조마커 코스삭제*/
+        DELETE FROM kpga.t_group_marker WHERE game_id = #{gameId};
+    </delete>
+
+    <delete id="deleteCourse" parameterType="Map">
+        /**deleteCourse*/
+        /**KPGA 코스삭제*/
+        DELETE FROM kpga.track3d_course_info WHERE game_id = #{gameId} AND round_no = #{roundNo};
+    </delete>
+
+    <insert id="insertKPGACourse" parameterType="Map">
+        INSERT INTO kpga.track3d_course_info (
+                game_id, region_group_course_id, game_subgroup_code, course_id, round_no
+                , hole_no, tshot_y, tshot_x, hole_cup_y, hole_cup_x, hazard, ob, reg_dt)
+        SELECT
+            t1.game_id
+             ,t1.region_group_course_id
+             ,t1.game_subgroup_code
+             ,t1.course_id
+             ,t1.round_no +1 round_no
+             ,t1.hole_no
+             ,t1.tshot_y
+             ,t1.tshot_x
+             ,'' hole_cup_y
+             ,'' hole_cup_x
+             ,t1.hazard
+             ,t1.ob
+             ,NOW() reg_dt
+        FROM kpga.track3d_course_info t1
+        WHERE t1.game_id = #{gameId}
+          AND t1.round_no = #{roundNo}-1
+    </insert>
+
+
 </mapper>

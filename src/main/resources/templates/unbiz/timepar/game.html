@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{thymeleaf/layout/layout}">
+<th:block layout:fragment="css"></th:block>
+<th:block layout:fragment="script">
+    <script type="text/javascript">
+        let app = '';
+        let SECOND = 1000;
+        let MINUTE = 60;
+        $(document).ready(function () {
+            app = new Vue({
+                el: "#app",
+                data: function () {
+                    return {
+                        year : new Date().getFullYear(),
+                        search : {
+                            apcYear : '2024',
+                            tourId : '11',
+                            gameName : '',
+                            pageNum : '',
+                        },
+                        listInfo : {
+                            pageNum : 1,
+                            pageSize : 15,
+                            total : 0,
+                            list : [],
+                        },
+                    }
+                },
+                created: function () {
+                    let self = this;
+                    self.doBase().getList();
+                },
+                methods: {
+                    getGameDate : function (info) {
+                        if(!info.gameOpenDate) return '';
+                        return moment(info.gameOpenDate).format('MM.DD') + '~' +  moment(info.gameOpenDate).format('DD');
+                    },
+                    doBase : function () {
+                        let self  = this;
+                        return {
+                            getList : function(type) {
+                                let resp =  doAjax('/api/game.tf', self.search);
+                                self.listInfo.list = resp.data ? resp.data : [];
+                            },
+                            movePrePare : function (info) {
+                                let data = [ {nm : "gameInfo" , val : JSON.stringify(info)}, ];
+                                movePage('/unbiz/timepar/prepare', data);
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</th:block>
+<div id="app" layout:fragment="content" >
+    <h2>타이바 시스템</h2>
+    <div class="taybar">
+        <div class="taybarExel">
+            <h3>상세검색</h3>
+            <div class="Exel_01">
+                <div class="exel_div">
+                    <span>연도</span>
+                    <span class="exel_sl">
+                        <select v-model="search.apcYear">
+                            <option v-for="no in 5" :value="year+1-no">{{year+1-no}}년</option>
+                        </select>
+                    </span>
+                </div>
+                <div class="exel_div">
+                    <span>투어선택</span>
+                    <span class="exel">
+                        <select v-model="search.tourId">
+                            <option value="11">코리안투어</option>
+                        </select>
+                    </span>
+                </div>
+                <div class="exel_div">
+                    <span>대회명</span>
+                    <span class="exel_sl">
+                        <input type="text" v-model="search.gameName" @keyup.13="doBase().getList()">
+                    </span>
+                </div>
+                <div class="exel_div btn">
+                    <button class="blueBtn" @click="doBase().getList()">검색</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="taybarDetail">
+        <table>
+            <colgroup>
+                <col width="5%">
+                <col width="10%">
+                <col width="10%">
+                <col width="*">
+                <col width="30%">
+                <col width="8%">
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th>연도</th>
+                    <th>기간</th>
+                    <th>투어</th>
+                    <th>대회명</th>
+                    <th>장소</th>
+                    <th>관리</th>
+                </tr>
+                <template v-if="listInfo.list.length == 0">
+                    <tr >
+                        <td colspan="8"> 일치하는 데이터가 없습니다.</td>
+                    </tr>
+                </template>
+                <template v-else>
+                    <tr v-for="info in listInfo.list">
+                        <td>{{ info.apcYear }}</td>
+                        <td>{{ getGameDate(info) }}</td>
+                        <td>코리안투어</td>
+                        <td>{{ info.gameName }}</td>
+                        <td>{{ info.golfclubName }} {{ info.courseName ? '('+ info.courseName +')'  : '' }}</td>
+                        <td class="btn">
+                            <button class="edit" type="button" @click="doBase().movePrePare(info)">수정</button>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</div>
+</html>

@@ -33,6 +33,26 @@ public class TimeparController  extends BaseController {
     private TimeparService timeparService;
     private static final String basePath = "timepar/";
 
+    @RequestMapping(value = "/game.tf")
+    public ResultVO Game(@RequestBody Map parameterMap) {
+        return success(timeparService.selectTimeparGame(parameterMap));
+    }
+
+    @RequestMapping(value = "/game/save.tf")
+    public ResultVO GameSave(@RequestBody Map parameterMap) {
+        return success(timeparService.insertTimeparGame(parameterMap));
+    }
+    @RequestMapping(value = "/excel/kpga/save.tf")
+    public ResultVO excelKpgaSave(@RequestBody Map parameterMap) {
+        timeparService.saveKpgaTimePar(parameterMap);
+        return success();
+    }
+
+    @RequestMapping(value = "/excel/save.tf")
+    public ResultVO excelSave(@RequestBody Map parameterMap) {
+        return success(timeparService.insertTimeparHole(parameterMap));
+    }
+
     @RequestMapping(value = "/stamp", method = {RequestMethod.GET})
     public ModelAndView page(Model model) {
         return new ModelAndView( basePath + "stamp" );
@@ -64,23 +84,6 @@ public class TimeparController  extends BaseController {
         return success(timeparService.selectTimeparStand(parameterMap));
     }
 
-    @RequestMapping(value = "/excel/save.tf")
-    public ResultVO excelSave(@RequestBody Map parameterMap) {
-        return success(timeparService.insertTimeparHole(parameterMap));
-    }
-
-    @RequestMapping(value = "/game/save.tf")
-    public ResultVO GameSave(@RequestBody Map parameterMap) {
-        timeparService.insertTimeparStamp(parameterMap);
-        return success(timeparService.insertTimeparGame(parameterMap));
-    }
-
-    @RequestMapping(value = "/game.tf")
-    public ResultVO Game(@RequestBody Map parameterMap) {
-        return success(timeparService.selectTimeparGame());
-    }
-
-
     @RequestMapping(value = "/stamp/save.tf")
     public ResultVO updateTimeparStamp(@RequestBody Map parameterMap) {
         return success(timeparService.updateTimeparStamp(parameterMap));
@@ -110,5 +113,9 @@ public class TimeparController  extends BaseController {
         return success(timeparService.selectHoleParCnt(parameterMap));
     }
 
+    @RequestMapping(value = "/accusum.tf")
+    public ResultVO accusum(@RequestBody Map parameterMap) {
+        return success(timeparService.updateAccuSum(parameterMap));
+    }
 
 }

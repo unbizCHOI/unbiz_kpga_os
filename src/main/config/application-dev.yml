@@ -1,5 +1,6 @@
 server:
   port: 17005
+  ##port: 8085
 
 ## html 화면 리로드
 spring.thymeleaf.cache: false
@@ -17,9 +18,12 @@ spring:
       jdbc-url: jdbc:log4jdbc:mysql://kpga-db-prod.cmmt58eft922.ap-northeast-2.rds.amazonaws.com:3306/kpga_db?characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false&zeroDateTimeBehavior=convertToNull
       username: ddfactory
       password: ddfactory1!
-      #jdbc-url: jdbc:log4jdbc:mysql://211.216.48.147:3306/kpga_db
+      #jdbc-url: jdbc:log4jdbc:mysql://211.216.48.147:3306/kpga_db?characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false&zeroDateTimeBehavior=convertToNull
       #username: unbiz
       #password: Unbiz123$
-
+      idle-timeout: 30000
+      max-lifetime: 60000
+      connection-timeout: 60000
+      validation-timeout: 3000
 
 

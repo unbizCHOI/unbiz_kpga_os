@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{thymeleaf/layout/layout}">
+<th:block layout:fragment="css">
+</th:block>
+<th:block layout:fragment="script">
+    <script type="text/javascript">
+        let app = '';
+        let SECOND = 1000;
+        let MINUTE = 60;
+        $(document).ready(function () {
+            app = new Vue({
+                el: "#app",
+                data: function () {
+                    return {
+                        list : [],
+                        search : {
+                            gameId : '',
+                            roundNo : 1,
+                            groupNo : '',
+                        },
+                    }
+                },
+                created: function () {
+                    let self = this;
+                    self.doBase().getList();
+                },
+                methods: {
+                    doBase : function () {
+                        let self  = this;
+                        return {
+                            getList : function() {
+                                let resp = doAjax('/timepar/stamp.tf', self.search);
+                            },
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</th:block>
+<div id="app" layout:fragment="content" >
+
+</div>
+</html>

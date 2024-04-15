@@ -84,3 +84,10 @@ function moveList(url, data) {
 function moveView(url, data) {
 	movePage(url+"/view", data);
 }
+function reqInfoParse(info ,str) {
+	if(!str || str.length < 10){
+		return info;
+	} else {
+		return JSON.parse(str.replaceAll('&quot;' , '"'))
+	}
+}

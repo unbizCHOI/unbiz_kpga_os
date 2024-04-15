@@ -37,6 +37,4 @@ public class ApiService {
         return apiMapper.selectScore(parameterMap);
     }
     public List<ShotVO> selectShot(Map parameterMap){ return apiMapper.selectShot(parameterMap);}
-    public int insertLog(Map parameterMap){ return apiMapper.insertLog(parameterMap);}
-    public List<Map> selectAllstar(){ return apiMapper.selectAllstar();}
 }

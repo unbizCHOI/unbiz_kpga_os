@@ -31,6 +31,10 @@ public class QueryPageController {
     public ModelAndView page(Model model) {
         return new ModelAndView( "query/page" );
     }
+    @RequestMapping(value = "/checkIn", method = {RequestMethod.GET})
+    public ModelAndView checkInpage(Model model) {
+        return new ModelAndView( "query/checkIn" );
+    }
 
     @RequestMapping(value="/try.tf", method=RequestMethod.POST)
     @ResponseBody
@@ -38,4 +42,16 @@ public class QueryPageController {
         return queryPageService.selectQuery(parameter);
     }
 
+    @RequestMapping(value="/user.tf", method=RequestMethod.POST)
+    @ResponseBody
+    public Object ajaxListUser(@RequestBody HashMap parameter) throws Exception{
+        return queryPageService.selectPlayerUser(parameter);
+    }
+
+    @RequestMapping(value="/galler.tf", method=RequestMethod.POST)
+    @ResponseBody
+    public Object ajaxListGaller(@RequestBody HashMap parameter) throws Exception{
+        queryPageService.insertEventGalleryCheck(parameter);
+        return parameter;
+    }
 }

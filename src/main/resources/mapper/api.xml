@@ -6,6 +6,7 @@
         /**대회리스트*/
         SELECT
              t1.apc_year            apcYear         /*연도*/
+            ,t1.tour_id             tourId
             ,t1.game_id             gameId          /*대회코드*/
             ,t1.game_name           gameName        /*대회명*/
             ,t1.cptMtd_type         gameRollType    /*대회룰종류(S:기본, M:매치, F:변형스테이브폴드)*/
@@ -14,13 +15,17 @@
             ,t1.game_prize          gamePrize       /*상금*/
             ,t1.amt_unit            amtUnit         /*상금단위*/
             ,t1.game_round_cnt      gameRoundCnt
+            ,t2.golfclub_name       golfclubName
+            ,t2.course_name         courseName
         FROM kpga_db.game_mst t1
+        LEFT OUTER JOIN kpga_db.game_course t2 ON t1.game_id = t2.game_id
         <where>
-            AND t1.apc_year  = #{apcYear}
+            <if test='!@org.springframework.util.ObjectUtils@isEmpty(apcYear)'> AND t1.apc_year  = #{apcYear}</if>
             AND t1.game_type = 'M'
             <if test='tourId == "11"'>AND t1.tour_id = 11</if>
             <if test='tourId != "11"'>AND t1.tour_id != 11</if>
             <if test='!@org.springframework.util.ObjectUtils@isEmpty(gameId)'> AND t1.game_id = #{gameId} </if>
+            <if test='!@org.springframework.util.ObjectUtils@isEmpty(gameName)'> AND t1.game_name LIKE CONCAT('%', #{gameName},'%') </if>
         </where>
         ORDER BY t1.game_open_date
     </select>
@@ -146,21 +151,6 @@
             <if test='!@org.springframework.util.ObjectUtils@isEmpty(playerNm)'> AND ( t1.member_id = #{playerNm} OR t4.player_name LIKE CONCAT('%', #{playerNm} , '%') ) </if>
         </where>
         ORDER BY t2.exp_group_no , t1.start_tee_off_order
-    </select>
-
-    <insert id="insertLog" parameterType="Map">
-        INSERT INTO tb_log (id, str_json)
-        VALUES (#{id} , #{str_json});
-    </insert>
-
-    <select id="selectAllstar" resultType="Map">
-    /*selectAllstar*/
-        SELECT
-            t1.player_member_id
-            ,COUNT(1) cnt
-        FROM kpga.event_allstar t1
-        GROUP BY t1.player_member_id
-        ORDER BY cnt DESC
     </select>
 
 </mapper>

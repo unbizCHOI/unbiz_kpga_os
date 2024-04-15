@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{thymeleaf/layout/layout}">
+<th:block layout:fragment="css">
+    <style type="text/css">
+        .gpmodalFooter button{background: #273140 !important; color: #fff !important; ; width: 60px; height :35px; }
+        .gpmodalFooter .red {background: red !important; }
+        .btnTd button{background: #273140 !important; color: #fff !important; ; width: 40px; height :30px; }
+        .tr1 {background: #3d9970;}
+        body:not(.sidebar-mini-md) .content-wrapper, body:not(.sidebar-mini-md) .main-footer, body:not(.sidebar-mini-md) .main-header { margin-left: 1px !important; }
+        .bodyOff{overflow:hidden}
+        .gpmodalCover{overflow:hidden;background:rgba(0,0,0,.6);z-index:999;position:fixed;width:100%;height:100%;top:0;left:0}.gpmodal{position:fixed;z-index:999;left:0;top:0;width:100%;height:100%}.gpmodalClose{color:#aaa;font-size:28px;font-weight:bold;float:right;display:inline-block}.gpmodalClose:hover,.gpmodalClose:focus{color:black;text-decoration:none;cursor:pointer}.gpmodalCont{box-sizing:border-box;border-radius:10px;background-color:#fefefe;margin:9%auto;padding:20px;border:1px solid#888;width:600px;overflow:hidden;box-shadow:2px 2px 6px rgba(0,0,0,.2)}.gpmodalHeader{border-bottom:1px solid#ccc;padding-bottom:10px}.gpmodalHeader>.tit{float:left;font-size:18px;font-weight:bold;color:#696969;line-height:28px}.gpmodalBody{box-sizing:border-box;width:100%;word-break:break-all;line-height:1.4;max-height:500px;overflow-y:auto;margin-top:20px;padding:0 10px}.gpmodalBody.mark01{display:block;width:60px;height:60px;background:url('../img/mark01.png')no-repeat center;background-size:60px 60px;margin:0px auto 20px;text-align:center}.gpmodalBody.mark02{display:block;width:60px;height:60px;background:url('../img/mark02.png')no-repeat center;background-size:60px 60px;margin:0px auto 20px;text-align:center}.gpmodalBody.gpmodalTblWrap{margin-bottom:20px}.gpmodalBody.gpmodalTblWrap p{border-radius:10px 0;font-size:18px;margin-bottom:10px;font-weight:bold;text-align:center;background:#235994;color:#fff;padding:5px}.gpmodalBody.newTbl_basic{width:100%}}.gpmodalBody.newTbl_basic tbody td{padding:5px;font-size:14px}.gpmodalFooter{margin-top:20px;padding-top:20px;text-align:center;border-top:1px solid#ccc}
+    </style>
+</th:block>
+<th:block layout:fragment="script">
+    <script type="text/javascript">
+        let app = '';
+        let SECOND = 1000;
+        let MINUTE = 60;
+        $(document).ready(function () {
+            app = new Vue({
+                el: "#app",
+                data: function () {
+                    return {
+                        list : [],
+                        search : {
+                            gameId : '',
+                            roundNo : 1,
+                            groupNo : '',
+                        },
+                        gameInfo : {},
+                        course :{},
+                        hole:{},
+                        groupHole : {},
+                        list : [],
+                        timer : {
+                            lastTime : '',
+                            woker : '',
+                            time : 0,
+                            timer : 0,
+                        },
+                        lineArr : [],
+                        modal : {
+                            isOpen : false,
+                            info : {},
+                            holeNo: -1
+                        }
+
+                    }
+                },
+                created: function () {
+                    let self = this;
+                    let resp = doAjax('/timepar/game.tf', {useYn : 'Y'});
+                    self.gameInfo = resp.data;
+                    self.search.gameId = resp.data.gameId;
+                    self.search.roundNo = resp.data.roundNo;
+
+                    resp =  doAjax('/api/game.tf', { gameId: resp.data.gameId, tourId : '11', });
+                    self.gameInfo = $.extend({}, resp.data[0], self.gameInfo)
+
+
+                    resp = doAjax('/timepar/hole.tf', self.search);
+                    self.hole = resp.data;
+                    resp = doAjax('/timepar/stand.tf', self.search);
+                    let groupHole = {};
+                    resp.data.forEach(function (info) {
+                        groupHole['group' + info.group_no] = info;
+                    });
+                    self.groupHole = groupHole;
+
+                    self.doBase().getList();
+                },
+                methods: {
+                    getHoleTime : function (info, holeNo) {
+                        let times = info['holeTime' +holeNo ];
+                        return info['hole'+ holeNo +'_end'] ? times : info['holeStandTime' +holeNo ];
+                    },
+                    doBase : function () {
+                        let self  = this;
+                        return {
+                            getList : function() {
+                                let resp = doAjax('/timepar/stamp.tf', self.search);
+                                let inout = 'OUT'
+                                let ampm = 'AM';
+                                let lineArr = [0];
+                                self.timer.time = 0;
+                                self.list = resp.data.map(function (info,idx) {
+                                    for (let i = Number(info.start_hole_no); i < Number(info.start_hole_no) + 18; i++) {
+                                        let holeNo = i > 18 ? i - 18 : i;
+                                        let holeStandTime = moment(self.groupHole['group'+info.group_no]['hole' + holeNo]);
+                                        let holeRealTimeStr = info['hole'+ holeNo +'_end'];
+                                        let holeRealTime = moment(holeRealTimeStr);
+                                        info['holeStandTime' + holeNo] = holeStandTime.format('HH:mm');
+                                        let holeTime = Math.floor(((holeRealTime - holeStandTime)/SECOND/MINUTE));
+                                        info['holeTime' + holeNo] = holeTime;
+                                        let className = '';
+                                        if(holeTime == 0 || !holeRealTimeStr ){
+                                            className = 'even';
+                                        } else if(holeTime < 0){
+                                            className = holeTime*-1 > 9 ? 'minus2' : 'minus';
+                                        } else if(holeTime > 0){
+                                            className = holeTime > 9 ? 'plus2' : 'plus';
+                                        }
+                                        info['className' + holeNo] = className;
+                                    }
+                                    if(info.start_am_pm != ampm || info.start_in_out != inout){
+                                        inout = info.start_in_out;
+                                        ampm = info.start_am_pm
+                                        lineArr.push(idx);
+                                    }
+                                    return info;
+                                })
+                                self.lineArr = lineArr;
+                            },
+                            save : function (holeNo, info) {
+                                self.modal.isOpen = true;
+                                self.modal.info = info;
+                                self.modal.holeNo = holeNo;
+                            },
+                            update : function (type) {
+                                let param = {
+                                    gameId : self.search.gameId ,
+                                    roundNo : self.search.roundNo ,
+                                    groupNo : self.modal.info.group_no ,
+                                    holeNo : self.modal.holeNo ,
+                                    endDate : type== 'del' ? type : self.modal.info['hole'+self.modal.holeNo+'_end']
+                                }
+                                let resp = doAjax('/timepar/stamp/save.tf', param);
+                                self.doBase().getList();
+
+                            }
+
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</th:block>
+<div id="app" layout:fragment="content" >
+    <h2>시간수정</h2>
+    <div class="taybar">
+        <div class="taybarExel">
+            <h3>{{ gameInfo.gameName }} - {{ gameInfo.roundNo }}R</h3>
+            <div class="Exel_01">
+                <div class="exel_div">
+                    <span>조 검색</span>
+                    <span class="exel_sl"> <input type="text" v-model="search.groupNo" @keyup.13="doBase().getList()"> </span>
+                </div>
+                <div class="exel_div">
+                    <span></span>
+                    <span class="exel_sl"></span>
+                </div>
+                <div class="exel_div">
+                    <span></span>
+                    <span class="exel_sl"></span>
+                </div>
+                <div class="exel_div btn">
+                    <button class="blueBtn" @click="doBase().getList()">검색</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="taybarDetail">
+        <table>
+            <colgroup>
+                <col v-for="no in 18" width="*"/>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th>조</th>
+                    <th v-for="no in 18">{{no}}H</th>
+                </tr>
+                <template v-if="list.length == 0">
+                    <tr >
+                        <td colspan="19"> 일치하는 데이터가 없습니다.</td>
+                    </tr>
+                </template>
+                <template v-for="info in list">
+                    <tr>
+                        <td>{{ info.group_no }}</td>
+                        <td v-for="hole in 18" class="btnTd">
+                            {{ getHoleTime(info, hole) }}
+                            <button type="button" @click="doBase().save(hole, info)">{{hole}}H</button>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+    <div class="gpmodalCover" v-if="modal.isOpen"></div>
+    <div class="gpmodal" v-if="modal.isOpen">
+        <div class="gpmodalCont">
+            <div class="gpmodalBody">
+                <div class="gpmodalTblWrap">
+                    <p>{{ modal.info.group_no }} 조 {{ modal.info.start_am_pm }} |{{ modal.info.start_in_out}} </p>
+                    <div class="tableWrap">
+                        <table class="table text-nowrap">
+                            <thead>
+                            <tr>
+                                <th>홀</th>
+                                <th>시간</th>
+                                <th>-</th>
+                                <th>-</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>{{ modal.holeNo }}H</td>
+                                <td> {{ modal.info['holeTime'+modal.holeNo] }}</td>
+                                <td> {{ modal.info['holeStandTime'+modal.holeNo] }}</td>
+                                <td> <input type="text" v-model="modal.info['hole'+modal.holeNo+'_end']"> </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="gpmodalFooter">
+                <button type="button" class="btn btnSearch" @click="doBase().update()" >저장</button>
+                <button type="button" class="btn red"  @click="doBase().update('del')">삭제</button>
+                <button type="button" class="btn btnSearch"  @click="modal.isOpen = !modal.isOpen">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

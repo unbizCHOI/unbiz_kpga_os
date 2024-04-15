@@ -1,0 +1,32 @@
+/* 타이바 시스템 */
+select, input[type="text"], input[type="date"]{ width:100%; height:36px; border:1px solid #cacaca; box-sizing:border-box; }
+table{ width:100%; border-collapse:collapse; border-top:1px solid #294d8f; border-bottom:1px solid #294d8f; }
+button{ cursor:pointer; }
+.mt40{ margin-top:40px; }
+.taybarExel{ position:relative; background:#f5f5f5; padding:60px 40px 35px 40px; margin-top:65px; }
+.taybarExel h3{ position:absolute; left:0; top:-25px; width:auto; line-height:52px; font-size:16px; background:#294d8f; padding:0 40px; color:#fff; border-radius:100px; box-sizing:border-box }
+.Exel_01{ display:grid; justify-content: space-between; align-items:center; grid-template-columns:1fr 1fr 1fr .3fr; grid-column-gap:10px; }
+.Exel_01 .exel_div{ display:flex; align-items:center; gap:10px; }
+.Exel_01 .exel_div span:first-child{ width:calc(100% - 210px); text-align:right; }
+.Exel_01 .exel_div .exel_sl, .Exel_01 .exel_div .exel{ width:100%; }
+.Exel_01 .exel_div input{ border:1px solid #cacaca; padding:5px 10px; background:#fff; }
+.Exel_01 .btn .blueBtn{ width:100%; height:36px; border:none; background:#317be2; color:#fff; }
+.taybarDetail{ margin-top:40px; }
+.taybarDetail th{ background:#e0ebfb; border-bottom:1px solid #294d8f; }
+.taybarDetail th, .taybarDetail td{ padding:10px; }
+.taybarDetail td{ border-top:1px solid #d7d7d7; text-align:center; }
+.btn button{ background:#fff; border-radius:5px; }
+.btn .detailBtn{ border:1px solid #317be2; color:#317be2; }
+.btn .edit{ border:1px solid #294d8f; color:#294d8f; }
+
+/* 타이바 시스템 write */
+.taybarCont h2 .taybarInfo{ float:right; right:0; }
+.taybarWrite table{ border-top:none; border-bottom:none; }
+.taybarWrite th, .taybarWrite td{ padding:10px; border-bottom:1px solid #d7d7d7; }
+.taybarWrite .timeDate{ display:flex; justify-content:space-between; align-items:center; }
+.taybarWrite .timeDate .date{ width:45%; }
+.taybarWrite .taybarBtn{ text-align:center; margin-top:20px; }
+.taybarWrite .taybarBtn .saveBtn, .taybarInfo .taybarBtn .saveBtn{ padding:10px 25px; border:none; background:#317be2; color:#fff; }
+.taybarInfoTop{ display:flex; }
+.taybarInfo{ display:flex; width:300px; z-index:999 }
+.taybarInfo .taybarBtn .saveBtn{ width:100px; margin-left:10px; height: 35.5px;}

@@ -71,11 +71,4 @@ public class ApiController extends BaseController {
     public ResultVO score(@RequestBody Map parameterMap) {
         return success(apiService.selectScore(parameterMap));
     }
-
-
-    @RequestMapping(value = "/allstar.tf")
-    public ResultVO allset() {
-        return success(apiService.selectAllstar());
-    }
-
 }

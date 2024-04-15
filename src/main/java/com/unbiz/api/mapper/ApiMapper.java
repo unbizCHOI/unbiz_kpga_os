@@ -26,8 +26,4 @@ public interface ApiMapper {
     public List<PlayerVO> selectPlayer(Map parameterMap);
     public List<ScoreVO> selectScore(Map parameterMap);
     public List<ShotVO> selectShot(Map parameterMap);
-    public int insertLog(Map parameterMap);
-
-    public List<Map> selectAllstar();
-
 }

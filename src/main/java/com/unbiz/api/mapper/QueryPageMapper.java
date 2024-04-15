@@ -20,6 +20,9 @@ import java.util.Map;
 public interface QueryPageMapper {
     public List selectQuery(Map map);
     public String selectQueryText(Map map);
+    public List selectPlayerUser(Map map);
+    public int insertEventGalleryCheck(Map map);
+
 
 }
 

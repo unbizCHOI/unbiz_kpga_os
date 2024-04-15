@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <head th:fragment="default">
+        <title>관리자 페이지</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link th:href="@{/comm/old/header.css}" rel="stylesheet">
+        <link th:href="@{/comm/old/sub.css}" rel="stylesheet">
+        <link th:href="@{/comm/old/paging.css}" rel="stylesheet">
+
+        <script th:src="@{/comm/js/jquery-3.4.1.min.js}"></script>
+        <script th:src="@{/comm/js/jquery.mCustomScrollbar.min.js}"></script>
+        <script th:src="@{/comm/js/moment.min.js}"></script>
+        <script th:src="@{/comm/js/sweetalert.min.js}"></script>
+        <script th:src="@{/comm/js/vue.js}"></script>
+        <script th:src="@{/comm/js/common.js}"></script>
+        <script th:src="@{/comm/js/pagingDesign.js}"></script>
+
+        <th:block layout:fragment="css"></th:block>
+        <th:block layout:fragment="script"></th:block>
+    </head>
+    <body>
+        <div class="wrap" id="admin">
+            <div class="header">
+                <div class="header_div">
+                    <h1>
+                        <img src="/comm/images/logo.png">
+                        <span>관리자 페이지</span>
+                    </h1>
+                </div>
+            </div>
+            <div class="container" >
+                <!-- sidebar -->
+                <div class="sidebar">
+                    <ul class="mainMenu">
+                        <li class="active">
+                            <a href="#">타이바 시스템</a>
+                            <ul class="subMenu">
+                                <li> <a href="/unbiz/timepar/game">대회 준비</a> </li>
+                                <li> <a href="/unbiz/timepar/time">시간 수정</a> </li>
+                            </ul>
+                        </li>
+                        <li class="active"> <a href="/unbiz/query/query">쿼리실행</a> </li>
+                        <!--
+                        <li> <a href="#">UCODA</a> </li>
+                        <li> <a href="#">KPGA 운영 시스템</a> </li>
+                        <li> <a href="#">버디</a> </li>
+                        <li> <a href="#">KPGA 공식 기록</a> </li>
+                        <li> <a href="#">KPGA 선수 스코어</a> </li>
+                        -->
+                    </ul>
+                </div>
+                <!-- 내용 -->
+                <div class="rightCont" layout:fragment="content" v-cloak>
+
+
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

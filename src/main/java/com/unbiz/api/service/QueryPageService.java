@@ -1,7 +1,6 @@
 package com.unbiz.api.service;
 
 import com.unbiz.api.mapper.QueryPageMapper;
-import com.unbiz.api.mapper.SchedulerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -31,5 +30,12 @@ public class QueryPageService {
             map.put("queryStr", queryStr);
         }
         return ObjectUtils.isEmpty(map.get("queryStr")) ? new ArrayList() : queryPageMapper.selectQuery(map);
+    }
+    public List selectPlayerUser(Map map){
+        return  queryPageMapper.selectPlayerUser(map);
+    }
+
+    public int insertEventGalleryCheck(Map map){
+        return  queryPageMapper.insertEventGalleryCheck(map);
     }
 }

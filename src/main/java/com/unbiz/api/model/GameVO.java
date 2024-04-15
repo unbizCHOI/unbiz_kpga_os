@@ -22,6 +22,9 @@ public class GameVO {
     @ApiModelProperty(name = "apcYear", value = "연도", example = "2022")
     private Integer apcYear;
 
+    @ApiModelProperty(name = "tourId", value = "투어코드 ", example = "11")
+    private String tourId;
+
     @ApiModelProperty(name = "gameId", value = "대회코드", example = "202211000004M")
     private String gameId;
 
@@ -48,5 +51,8 @@ public class GameVO {
 
     @ApiModelProperty(name = "roundNo", value = "라운드", example = "1")
     private String roundNo;
+
+    private String golfclubName;
+    private String courseName;
 
 }

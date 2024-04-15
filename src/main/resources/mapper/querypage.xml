@@ -11,4 +11,39 @@
         SELECT query_str FROM  kpga.tb_query_select
         where query_name = #{queryName}
     </select>
+
+    <select id="selectPlayerUser" resultType="Map" parameterType="Map">
+        /**selectPlayerUser*/
+        SELECT
+            t1.member_id
+             ,t1.web_login_id
+             ,t1.user_name
+             ,t1.pri_hp_no
+             ,t1.profile_dob
+             ,t1.createDt
+             ,case when t2.event_sq IS NULL then 'N' ELSE 'Y'END is_check_in
+        FROM kpga_db.player_user_mst t1
+        LEFT OUTER JOIN kpga.event_gallery_check t2
+        ON t1.member_id = t2.member_id AND t2.gallery_date = DATE_FORMAT(NOW(), '%Y%m%d')
+        WHERE t1.web_login_id LIKE CONCAT('%',#{sText},'%')
+           OR t1.user_name LIKE CONCAT('%',#{sText},'%')
+        LIMIT 100
+    </select>
+
+    <insert id="insertEventGalleryCheck" parameterType="Map">
+        /**insertEventGalleryCheck*/
+        INSERT INTO kpga.event_gallery_check (event_sq, member_id, gallery_date, reg_date)
+        SELECT
+            t1.event_sq
+             , #{memberId} member_id
+             , t2.round_date gallery_date
+             , NOW(1) reg_date
+        FROM kpga.event_mst t1
+        JOIN kpga_db.game_round t2
+        ON t1.game_id = t2.game_id
+        AND t1.event_type_sq = 6
+        AND t2.round_date =  DATE_FORMAT(NOW(), '%Y%m%d')
+        ON DUPLICATE KEY UPDATE reg_date = VALUES(reg_date);
+        </insert>
+
 </mapper>

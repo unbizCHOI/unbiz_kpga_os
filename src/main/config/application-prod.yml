@@ -15,3 +15,7 @@ spring:
       jdbc-url: jdbc:log4jdbc:mysql://kpga-db-prod.cmmt58eft922.ap-northeast-2.rds.amazonaws.com:3306/kpga_db?characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false
       username: ddfactory
       password: ddfactory1!
+      idle-timeout: 30000
+      max-lifetime: 60000
+      connection-timeout: 60000
+      validation-timeout: 3000

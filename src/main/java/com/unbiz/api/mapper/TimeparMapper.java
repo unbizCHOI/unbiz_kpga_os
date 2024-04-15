@@ -28,12 +28,15 @@ public interface TimeparMapper {
     Integer insertTimeparHole(Map parameterMap);
 
     Integer insertTimeparGame(Map parameterMap);
-    Map selectTimeparGame();
+    Map selectTimeparGame(Map parameterMap);
     Integer insertTimeparStamp(Map parameterMap);
     Integer updateTimeparStamp(Map parameterMap);
     List<TimeparGroup> selectTimeparGroup(Map parameterMap);
     List<Map> selectFullswingDataTime();
     List<Map> selectHoleParCnt(Map parameterMap);
+    Integer updateAccuSum(Map parameterMap);
+
+
 
 
 }

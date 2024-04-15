@@ -1,6 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.unbiz.api.mapper.TimeparMapper">
+
+    <select id="selectTimeparGame" resultType="Map">
+        /**selectTimeparGame*/
+        /**타입파 기본정보 */
+        SELECT
+            t1.game_id      gameId
+            ,t1.round_no    roundNo
+            ,t1.out_time    outTime
+            ,t1.in_time     inTime
+            ,t1.total_time  totalTime
+            ,t1.sunrise     sunrise
+            ,t1.sunset      sunset
+            ,t1.use_yn      useYn
+        FROM kpga.tb_timepar_game t1
+        WHERE 1 = 1
+        <if test='!@org.springframework.util.ObjectUtils@isEmpty(gameId)'> AND t1.game_id = #{gameId} </if>
+        <if test='!@org.springframework.util.ObjectUtils@isEmpty(roundNo)'> AND t1.round_no = #{roundNo} </if>
+        AND t1.use_yn = 'Y'
+        LIMIT 1
+    </select>
+    <insert id="insertTimeparGame">
+        /**insertTimeparGame*/
+        /**타임파 기본정보 수정*/
+        DELETE FROM kpga.tb_timepar_game;
+
+        INSERT INTO kpga.tb_timepar_game (game_id, round_no, out_time, in_time, total_time, sunrise, sunset, use_yn)
+        VALUES (#{gameId}, #{roundNo}, #{outTime}, #{inTime}, #{totalTime}, #{sunrise}, #{sunset}, #{useYn})
+    </insert>
+
+
+
+
+
     <select id="selectTimeparHole" parameterType="Map" resultType="Map">
         /**selectTimeparHole*/
         SELECT
@@ -84,26 +117,8 @@
         , #{t.hole10}, #{t.hole11}, #{t.hole12}, #{t.hole13}, #{t.hole14}, #{t.hole15}, #{t.hole16}, #{t.hole17}, #{t.hole18}) </foreach>
     </insert>
 
-    <select id="selectTimeparGame" resultType="Map">
-        /**insertTimeparGame*/
-        SELECT
-            t1.game_id gameId
-            ,t1.round_no roundNo
-            ,t1.out_time   outTime
-            ,t1.in_time    inTime
-            ,t1.total_time totalTime
-            ,t1.sunrise
-            ,t1.sunset
-        FROM kpga.tb_timepar_game t1
-        WHERE t1.seq = (SELECT MAX(t2.seq) FROM kpga.tb_timepar_game t2)
-    </select>
 
 
-    <insert id="insertTimeparGame">
-        /**insertTimeparGame*/
-        INSERT INTO kpga.tb_timepar_game (game_id, round_no, out_time, in_time, total_time, sunrise, sunset)
-        VALUES (#{gameId}, #{roundNo}, #{outTime}, #{inTime}, #{totalTime}, #{sunrise}, #{sunset})
-    </insert>
 
     <insert id="insertTimeparStamp">
         /**insertTimeparStamp*/
@@ -215,7 +230,24 @@
         ON t1.game_id = t2.game_id
         WHERE t1.game_id = #{gameId}
           AND t1.round_no = #{roundNo}
-
     </select>
+
+    <update id="updateAccuSum">
+        /* updateAccuSum */
+        /* 전라운드스코어합, 누럭랭킹 수정 */
+        UPDATE kpga_db.game_score a, kpga_db.game_score b
+        SET
+            a.accu_sum_score = b.accu_sum_score
+            ,a.accu_rank = b.accu_rank
+        WHERE a.game_id = b.game_id
+          AND a.game_id = #{gameId}
+          AND b.game_id = #{gameId}
+          AND a.round_no = #{roundNo}
+          AND b.round_no = #{roundNo} - 1
+          AND #{roundNo} != 1
+          AND a.member_id = b.member_id
+          AND a.accu_rank = 0
+          AND a.accu_sum_score = 0;
+    </update>
 
 </mapper>
