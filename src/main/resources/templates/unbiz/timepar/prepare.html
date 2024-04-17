@@ -34,7 +34,8 @@
                 },
                 created: function () {
                     const self = this;
-                    self.gameInfo = reqInfoParse({}, '[[${parameter.gameInfo}]]');
+                    let resp =  doAjax('/api/game.tf', {gameId : '[[${parameter.gameId}]]',tourId : '[[${parameter.tourId}]]' });
+                    self.gameInfo = resp.data[0]
                     self.gameInfo.roundNo = '1';
                     self.doBase().getTimeSetInfo();
                 },

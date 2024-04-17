@@ -43,7 +43,7 @@
                                 self.listInfo.list = resp.data ? resp.data : [];
                             },
                             movePrePare : function (info) {
-                                let data = [ {nm : "gameInfo" , val : JSON.stringify(info)}, ];
+                                let data = [ {nm : "gameId" , val : info.gameId},{nm : "tourId" , val : info.tourId} ];
                                 movePage('/unbiz/timepar/prepare', data);
                             }
                         }
