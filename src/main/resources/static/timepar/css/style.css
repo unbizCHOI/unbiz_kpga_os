@@ -186,6 +186,7 @@ th a {
 .shot_PS { background: #cc0000;color: #fff; }
 .shot_UP, .shot_PA { background: #000099;color: #fff; }
 .shot_IN { background: #008080; border-radius: 20px;color: #fff; }
+.shot_GU { background: #cc0000;color: #fff; }
 
 #help {
 	position: absolute;
