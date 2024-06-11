@@ -9,6 +9,7 @@
             ,t1.tour_id             tourId
             ,t1.game_id             gameId          /*대회코드*/
             ,t1.game_name           gameName        /*대회명*/
+            ,t1.en_name             gameEnName
             ,t1.cptMtd_type         gameRollType    /*대회룰종류(S:기본, M:매치, F:변형스테이브폴드)*/
             ,t1.game_open_date      gameOpenDate    /*대회시작일*/
             ,t1.game_close_date     gameCloseDate   /*대회종료일*/

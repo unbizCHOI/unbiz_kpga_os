@@ -157,7 +157,7 @@
             <div class="taybarInfo">
                 <select v-model="gameInfo.roundNo" @change="doBase().getTimeSetInfo()">
                     <option value="">미선택</option>
-                    <option v-for="roundNo in 4" :value="roundNo">{{ roundNo }}R</option>
+                    <option v-for="roundNo in 7" :value="roundNo">{{ roundNo }}R</option>
                 </select>
                 <div class="btn taybarBtn">
                     <button class="saveBtn" @click="doBase().save()">저장</button>
@@ -231,7 +231,7 @@
             <div class="taybarInfo">
                 <select v-model="gameInfo.roundNo" @change="doBase().getTimeSetInfo()">
                     <option value="">미선택</option>
-                    <option v-for="roundNo in 4" :value="roundNo">{{ roundNo }}R</option>
+                    <option v-for="roundNo in 7" :value="roundNo">{{ roundNo }}R</option>
                 </select>
             </div>
         </h2>

@@ -138,14 +138,15 @@
     </update>
 
     <resultMap id="TimeparGroupMap" type="com.unbiz.api.model.TimeparGroup">
-        <result property="gameId"						column="gameId"		/>
+        <result property="gameId"						column="gameId"		    />
         <result property="roundNo"						column="roundNo"		/>
-        <result property="holeNo"						column="holeNo"		/>
+        <result property="holeNo"						column="holeNo"		    />
         <result property="memberId"						column="memberId"		/>
-        <result property="startTimeId"					column="startTimeId"		/>
+        <result property="startTimeId"					column="startTimeId"	/>
         <result property="groupNum"						column="groupNum"		/>
         <result property="playerName"					column="playerName"		/>
-        <result property="score"					    column="score"		/>
+        <result property="playerEnName"					column="playerEnName"	/>
+        <result property="score"					    column="score"		    />
 
         <collection property="shotList"
                     column="{gameId = gameId, roundNo = roundNo, memberId = memberId, holeNo = holeNo}"
@@ -162,6 +163,10 @@
             ,t1.start_time_id           startTimeId
             ,t1.exp_group_no            groupNum
             ,t3.player_name             playerName
+            ,CASE
+                 WHEN t4.en_middle_name = '' THEN CONCAT(t4.en_last_name, ' ', t4.en_first_name)
+                 ELSE CONCAT(t4.en_last_name, ' ', t4.en_middle_name, ' ', t4.en_first_name)
+             END                        playerEnName
             ,t2.score_${holeNo}         score
         FROM kpga_db.game_round_starttime t1
         JOIN kpga_db.game_score t2
@@ -169,10 +174,10 @@
         AND t1.round_no = t2.round_no AND t1.start_time_id = t2.start_time_id
         JOIN kpga_db.game_player t3
         ON t2.game_id = t3.game_id AND t2.member_id = t3.member_id
+        JOIN kpga_db.player_user_mst t4 ON t2.member_id = t4.member_id
         WHERE t1.game_id = #{gameId}
           AND t1.round_no = #{roundNo}
           AND t1.exp_group_no = #{groupNo};
-
     </select>
 
     <select id="selectTimeparPlayerShot" resultType="Map">

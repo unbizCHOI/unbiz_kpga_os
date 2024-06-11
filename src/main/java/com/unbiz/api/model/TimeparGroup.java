@@ -40,6 +40,9 @@ public class TimeparGroup {
     @ApiModelProperty(name = "playerName", value = "선수명", example = "최정욱")
     private String playerName;
 
+    @ApiModelProperty(name = "playerEnName", value = "영문선수명", example = "최정욱")
+    private String playerEnName;
+
     @ApiModelProperty(name = "score", value = "스코어", example = "3")
     private Integer score;
     

@@ -60,10 +60,35 @@
                             holeNo : '',
                         },
                         toTopStyle : '' ,
+                        language : 'en',
+                        lang : {
+                            sunset : { en : 'sunset', ko : '일몰' },
+                            sunrise : { en : 'sunrise', ko : '일출' },
+                            totalTime : {en : 'total time', ko : '총시간' },
+                            course : {en : 'course', ko : '코스' },
+                            minus : {en : 'Fast (less than 10 minutes)', ko : '빠르다 (10분 미만)' },
+                            minus2 : {en : 'Fast (10 minutes or more)', ko : '빠르다 (10분 이상)' },
+                            plus : {en : 'Slow (less than 10 minutes)', ko : '느리다 (10분 미만)' },
+                            plus2 : {en : 'Slow (more than 10 minutes)', ko : '느리다 (10분 이상)' },
+                            shot_F : {en : 'fairway', ko : '페어웨이' },
+                            shot_R : {en : 'Rough', ko : '러프' },
+                            shot_G : {en : 'Green', ko : '그린' },
+                            shot_IN : {en : 'Hole in', ko : '홀인' },
+                            shot_OB : {en : 'Out of Bounds', ko : 'OB' },
+                            shot_B : {en : 'Bunker', ko : '벙커' },
+                            shot_GB : {en : 'green side bunker', ko : '그린 주변 벙커' },
+                            shot_LB : {en : 'Lost Ball', ko : '분실구' },
+                            shot_PA : {en : 'Penalty Area', ko : '페널티구역' },
+                            shot_PS : {en : 'Stroke penalty', ko : '벌타' },
+                            shot_PS2 : {en : 'Hole give up', ko : '홀포기' },
+                            time : {en : 'YYYY-MM-DD HH:mm:ss', ko : 'YYYY년 MM월 DD일  HH시mm분ss초'}
+                        }
                     }
                 },
                 created: function () {
                     const self = this;
+                    let language = Cookies.get('language');
+                    self.language = language == 'en' ? 'en' : 'ko';
                     let resp = doAjax('/timepar/game.tf', {});
                     self.search.gameId = resp.data.gameId;
                     self.search.roundNo = resp.data.roundNo;
@@ -95,7 +120,6 @@
                         self.list = resp.data.map(function (info,idx) {
                             for (let i = Number(info.start_hole_no); i < Number(info.start_hole_no) + 18; i++) {
                                 let holeNo = i > 18 ? i - 18 : i;
-
                                 let holeStandTime = moment(self.groupHole['group'+info.group_no]['hole' + holeNo]);
                                 let holeRealTimeStr = info['hole'+ holeNo +'_end'];
                                 let holeRealTime = moment(holeRealTimeStr);
@@ -111,7 +135,6 @@
                                 } else if(holeTime > 0){
                                     className = holeTime > 9 ? 'plus2' : 'plus';
                                 }
-
                                 info['className' + holeNo] = className;
                             }
                             if(info.start_am_pm != ampm || info.start_in_out != inout){
@@ -122,7 +145,7 @@
                             return info;
                         })
                         self.lineArr = lineArr;
-                        self.timer.lastTime = moment().format('YYYY년 MM월 DD일  HH시mm분ss초')
+                        self.timer.lastTime = moment().format(self.getLenTxt(self.lang.time, 'ko', 'en'))
                     },
                     getHoleTime : function (info, holeNo) {
                         let times = info['holeTime' +holeNo ];
@@ -150,6 +173,23 @@
                     isShowHole : function () {
                         let self = this;
                         self.modal.isOpenHelp = !self.modal.isOpenHelp;
+                    },
+                    changeLanguage : function () {
+                        let self  = this;
+                        let changLenTxt = self.language == 'en' ? 'ko' : 'en';
+                        self.language = changLenTxt;
+                        Cookies.set('language', changLenTxt, { expires: 4 })
+                    },
+                    getLenTxt : function (info, ko, en) {
+                        let self  = this;
+                        if(!info) return "";
+                        let txt = "";
+                        if(self.language == 'en'){
+                            txt = info[en];
+                        } else {
+                            txt = info[ko];
+                        }
+                        return txt;
                     }
                 }
             });
@@ -161,12 +201,13 @@
 <body layout:fragment="content" >
     <div id="app">
         <div id="headerCont">
+            <a @click="changeLanguage()" class="btn btn-default help">{{ language == 'ko' ? 'En' : '한' }}</a>
             <a @click="isShowHole()" class="btn btn-default help">？</a>
-            <span class="help topText"  style="margin-right: 5px !important;">일몰:{{ timeSetInfo.sunset }}</span>
-            <span class="help topText"  style="margin-right: 5px !important;">일출:{{ timeSetInfo.sunrise }}</span>
+            <span class="help topText"  style="margin-right: 5px !important;">{{ getLenTxt(lang.sunset, 'ko', 'en') }}:{{ timeSetInfo.sunset }}</span>
+            <span class="help topText"  style="margin-right: 5px !important;">{{ getLenTxt(lang.sunrise, 'ko', 'en') }}:{{ timeSetInfo.sunrise }}</span>
         </div>
         <div id="container2">
-            <h1>{{ gameInfo.gameName }} {{ search.roundNo }}R</h1>
+            <h1>{{ getLenTxt(gameInfo, 'gameName', 'gameEnName') }} {{ search.roundNo }}R</h1>
             <div id="tourinfo">Pace of Play Time</div>
             <div class="btn-group" role="group">
                 <a class="btn btn-primary" role="button" @click="getList()">
@@ -174,10 +215,10 @@
                 </a>
             </div>
             <div> <span id="time">{{ timer.lastTime }}</span> </div>
-            <div> <span class="timeIn" >총시간:{{ timeSetInfo.totalTime }}</span> </div><br/>
+            <div> <span class="timeIn" >{{ getLenTxt(lang.totalTime, 'ko', 'en') }}:{{ timeSetInfo.totalTime }}</span> </div><br/>
             <div>
-                <span class="timeOut">Out 코스 {{ timeSetInfo.outTime }}</span>
-                <span class="timeIn">In 코스 {{ timeSetInfo.inTime }}</span>
+                <span class="timeOut">Out {{ getLenTxt(lang.course, 'ko', 'en') }} {{ timeSetInfo.outTime }}</span>
+                <span class="timeIn">In {{ getLenTxt(lang.course, 'ko', 'en') }} {{ timeSetInfo.inTime }}</span>
             </div>
             <div id="tablewrap">
                 <table id="tablestroke" :style="'transform: scale(' + zoomNo + '); transform-origin: 0px 0px;'">
@@ -206,7 +247,7 @@
                 <div>
                     <h2>Group {{ modal.groupNo }} / Hole {{ modal.holeNo }} ( Par {{ course['holePar' + modal.holeNo] }})</h2>
                     <template v-for="info in modal.list">
-                        <h3>{{ info.playerName }}</h3>
+                        <h3>{{ getLenTxt(info, 'playerName', 'playerEnName') }}</h3>
                         <dl>
                             <dt>{{ info.score == 0 ? '-' : info.score }}</dt>
                             <dd> <span v-for=" sinfo in info.shotList" :class="'shotItem shot_' + getShotTxt(sinfo.field)">{{ getShotTxt(sinfo.field) }}</span> </dd>
@@ -218,37 +259,37 @@
 
             <div v-if="modal.isOpenHelp" id="help" style="display: block;">
                 <h4>Pace of play time</h4>
-                <p><span class="minus">Number</span>　빠르다 (10분 미만)</p>
-                <p><span class="minus2">Number</span>　빠르다 (10분 이상)</p>
-                <p><span class="plus">Number</span>　느리다 (10분 미만)</p>
-                <p><span class="plus2">Number</span>　느리다 (10분 이상)</p>
+                <p><span class="minus">Number</span>　{{getLenTxt(lang.minus, 'ko', 'en')}}</p>
+                <p><span class="minus2">Number</span>　{{getLenTxt(lang.minus2, 'ko', 'en')}}</p>
+                <p><span class="plus">Number</span>　{{getLenTxt(lang.plus, 'ko', 'en')}}</p>
+                <p><span class="plus2">Number</span>　{{getLenTxt(lang.plus2, 'ko', 'en')}}</p>
                 <h4>Shot detail</h4>
-                <p><span class="shot_F">F</span>　페어웨이</p>
-                <p><span class="shot_R">R</span>　러프</p>
-                <p><span class="shot_G">G</span>　그린</p>
-                <p><span class="shot_IN">IN</span>　홀인</p>
-                <p><span class="shot_B">B</span>　벙커</p>
-                <p><span class="shot_GB">GB</span>　그린 주변 벙커</p>
-                <p><span class="shot_OB">OB</span>　OB</p>
-                <p><span class="shot_LB">LB</span>　분실구</p>
-                <p><span class="shot_PA">PA</span>　페널티구역</p>
-                <p><span class="shot_PS">PS</span>　벌타</p>
-                <p><span class="shot_PS">GU</span>　홀포기</p>
+                <p><span class="shot_F">F</span>　{{getLenTxt(lang.shot_F, 'ko', 'en')}}</p>
+                <p><span class="shot_R">R</span>　{{getLenTxt(lang.shot_R, 'ko', 'en')}}</p>
+                <p><span class="shot_G">G</span>　{{getLenTxt(lang.shot_G, 'ko', 'en')}}</p>
+                <p><span class="shot_IN">IN</span>　{{getLenTxt(lang.shot_IN, 'ko', 'en')}}</p>
+                <p><span class="shot_B">B</span>　{{getLenTxt(lang.shot_B, 'ko', 'en')}}</p>
+                <p><span class="shot_GB">GB</span>　{{getLenTxt(lang.shot_GB, 'ko', 'en')}}</p>
+                <p><span class="shot_OB">OB</span>　{{getLenTxt(lang.shot_OB, 'ko', 'en')}}</p>
+                <p><span class="shot_LB">LB</span>　{{getLenTxt(lang.shot_LB, 'ko', 'en')}}</p>
+                <p><span class="shot_PA">PA</span>　{{getLenTxt(lang.shot_PA, 'ko', 'en')}}</p>
+                <p><span class="shot_PS">PS</span>　{{getLenTxt(lang.shot_PS, 'ko', 'en')}}</p>
+                <p><span class="shot_PS">GU</span>　{{getLenTxt(lang.shot_PS2, 'ko', 'en')}}</p>
                 <a @click="modal.isOpenHelp = false;" id="helpclose" class="btn btn-primary btn-block" href="javascript:void(0);" role="button" style="clear: both;">Close</a>
             </div>
 
 
             <div id="zoomCont" class="btn-group btn-group-justified" role="group">
-                <a href="#" :class="'zoom50 btn btn-default ' + (zoomNo == '0.5' ? 'active' : '')" @click="fnZoom(0.5)"  role="button">
+                <a href="#" :class="'zoom50 btn btn-default ' + (zoomNo == '0.5' ? 'active' : '')" @click="fnZoom('0.5')"  role="button">
                     <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>Full
                 </a>
-                <a href="#" :class="'zoom50 btn btn-default ' + (zoomNo == '1' ? 'active' : '')" @click="fnZoom(1)" role="button">
+                <a href="#" :class="'zoom50 btn btn-default ' + (zoomNo == '1' ? 'active' : '')" @click="fnZoom('1')" role="button">
                     <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>2x
                 </a>
-                <a href="#" :class="'zoom50 btn btn-default ' + (zoomNo == '1.5' ? 'active' : '')" @click="fnZoom(1.5)" role="button">
+                <a href="#" :class="'zoom50 btn btn-default ' + (zoomNo == '1.5' ? 'active' : '')" @click="fnZoom('1.5')" role="button">
                     <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>3x
                 </a>
-                <a href="#" :class="'zoom50 btn btn-default ' + (zoomNo == '2.0' ? 'active' : '')"  @click="fnZoom(2.0)" role="button">
+                <a href="#" :class="'zoom50 btn btn-default ' + (zoomNo == '2.0' ? 'active' : '')"  @click="fnZoom('2.0')" role="button">
                     <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>4x
                 </a>
             </div>

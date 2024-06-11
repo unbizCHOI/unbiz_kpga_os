@@ -54,5 +54,6 @@ public class GameVO {
 
     private String golfclubName;
     private String courseName;
+    private String gameEnName;
 
 }
