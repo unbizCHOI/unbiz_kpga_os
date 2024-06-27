@@ -75,6 +75,7 @@
         /**selectTimeparStamp*/
         SELECT
             t1.group_no , t2.start_time, t2.start_hole_no , t2.start_am_pm , t2.start_in_out
+            ,t2.start_time_id
            ,DATE_FORMAT(t1.hole1_end   , '%Y-%m-%d %H:%i:%s')  hole1_end
            ,DATE_FORMAT(t1.hole2_end   , '%Y-%m-%d %H:%i:%s')  hole2_end
            ,DATE_FORMAT(t1.hole3_end   , '%Y-%m-%d %H:%i:%s')  hole3_end
@@ -254,5 +255,28 @@
           AND a.accu_rank = 0
           AND a.accu_sum_score = 0;
     </update>
+
+    <select id="selectHoleInTime" resultType="Map">
+        /*selectHoleInTime*/
+        /*홀인시간 */
+        SELECT
+            t3.member_id
+             ,t3.player_name
+             ,t2.exp_group_no
+             ,DATE_FORMAT(t1.reg_dttm, '%Y-%m-%d %H:%i:%s')  reg_dttm
+        FROM kpga.track3d_shot_info t1
+        JOIN kpga_db.game_round_starttime t2
+        ON t1.game_id = t2.game_id AND t1.round_no = t2.round_no AND t1.start_time_id = t2.start_time_id
+        LEFT OUTER JOIN kpga_db.game_player t3
+        ON t1.game_id = t3.game_id AND t1.member_id = t3.member_id
+        WHERE t1.game_id = #{gameId}
+          AND t1.round_no = #{roundNo}
+          AND t1.start_time_id = #{start_time_id}
+          AND t1.hole_no = #{holeNo}
+          AND t1.`field` = '10'
+        ORDER BY t1.reg_dttm
+    </select>
+
+
 
 </mapper>

@@ -46,4 +46,7 @@ public class TimeparService {
     }
     public Integer updateAccuSum(Map parameterMap){ return timeparMapper.updateAccuSum(parameterMap); }
 
+    public List<Map> selectHoleInTime(Map parameterMap){ return timeparMapper.selectHoleInTime(parameterMap); }
+
+
 }

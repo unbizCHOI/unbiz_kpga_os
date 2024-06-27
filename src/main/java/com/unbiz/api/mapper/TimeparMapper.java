@@ -35,8 +35,6 @@ public interface TimeparMapper {
     List<Map> selectFullswingDataTime();
     List<Map> selectHoleParCnt(Map parameterMap);
     Integer updateAccuSum(Map parameterMap);
-
-
-
+    List<Map> selectHoleInTime(Map parameterMap);
 
 }

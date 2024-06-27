@@ -58,6 +58,12 @@ public class TimeparController  extends BaseController {
         return new ModelAndView( basePath + "stamp" );
     }
 
+    @RequestMapping(value = "/stampEn", method = {RequestMethod.GET})
+    public ModelAndView pageEn(Model model) {
+        return new ModelAndView( basePath + "stampEn" );
+    }
+
+
     @RequestMapping(value = "/before", method = {RequestMethod.GET})
     public ModelAndView pageBefore(Model model) {
         return new ModelAndView( basePath + "before" );
@@ -116,6 +122,11 @@ public class TimeparController  extends BaseController {
     @RequestMapping(value = "/accusum.tf")
     public ResultVO accusum(@RequestBody Map parameterMap) {
         return success(timeparService.updateAccuSum(parameterMap));
+    }
+
+    @RequestMapping(value = "/holein.tf")
+    public ResultVO holein(@RequestBody Map parameterMap) {
+        return success(timeparService.selectHoleInTime(parameterMap));
     }
 
 }
