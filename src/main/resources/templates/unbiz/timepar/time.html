@@ -42,7 +42,9 @@
                         modal : {
                             isOpen : false,
                             info : {},
-                            holeNo: -1
+                            holeNo: -1,
+                            holeInShot : [],
+
                         }
 
                     }
@@ -112,6 +114,18 @@
                                 self.lineArr = lineArr;
                             },
                             save : function (holeNo, info) {
+
+                                self.modal.holeInShot = [];
+                                let resp = doAjax('/timepar/holein.tf', {
+                                    gameId : self.search.gameId,
+                                    roundNo : self.search.roundNo,
+                                    start_time_id : info.start_time_id,
+                                    holeNo : holeNo,
+                                });
+                                if(resp.data && resp.data.length > 0 ){
+                                    self.modal.holeInShot = resp.data;
+                                }
+
                                 self.modal.isOpen = true;
                                 self.modal.info = info;
                                 self.modal.holeNo = holeNo;
@@ -209,6 +223,20 @@
                                 <td> {{ modal.info['holeTime'+modal.holeNo] }}</td>
                                 <td> {{ modal.info['holeStandTime'+modal.holeNo] }}</td>
                                 <td> <input type="text" v-model="modal.info['hole'+modal.holeNo+'_end']"> </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <table class="table text-nowrap">
+                            <thead>
+                            <tr>
+                                <th>선수명</th>
+                                <th>시간</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="p in modal.holeInShot">
+                                <td>{{ p.player_name}}</td>
+                                <td> {{ p.reg_dttm }}</td>
                             </tr>
                             </tbody>
                         </table>
