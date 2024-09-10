@@ -16,6 +16,16 @@
         .no_dot { list-style-type: none; }
         td{ cursor: pointer}
         [v-cloak] { display: none; }
+        .display-flex { display: flex; justify-content: space-between; }
+        .display-flex .display-flex-text{ padding: 3px 5px; margin-right: 3%; margin-bottom: 5px;  font-weight: 900;}
+        .display-flex .udpE{}
+        .display-flex .udpDn{color: #f82217;}
+        .display-flex .udpUp{color: #0c4bff;}
+        .display-flex .udpItem { font-weight: 900; padding: 3px 5px; margin-right: 3%; margin-bottom: 5px; width: 17%; float: left; display: block; text-align: center; font-size: 1.1rem; border-radius: 10px;}
+        .display-flex .udpDn{color: #fff; background: #f82217;}
+        .display-flex .udpUp{color: #fff; background: #0c4bff;}
+        .display-flex .udpE{color: #fff; background: #000000;}
+        #holedetail .shotItem {border-radius: 10px;}
     </style>
 
 </th:block>
@@ -191,6 +201,28 @@
                             txt = info[ko];
                         }
                         return txt;
+                    },
+                    getUdp : function (type, udp) {
+                        udp = Number(udp);
+                        let txt = '';
+                        if(type == 'class'){
+                            if(0 == udp){
+                                txt = 'udpE';
+                            } else if(udp < 0 ){
+                                txt = 'udpDn';
+                            } else{
+                                txt = 'udpUp';
+                            }
+                        } else {
+                            if(0 == udp){
+                                txt = 'E';
+                            } else if(udp < 0 ){
+                                txt = '' + udp;
+                            } else {
+                                txt = '+' + udp;
+                            }
+                        }
+                        return txt;
                     }
                 }
             });
@@ -248,7 +280,12 @@
                 <div>
                     <h2>Group {{ modal.groupNo }} / Hole {{ modal.holeNo }} ( Par {{ course['holePar' + modal.holeNo] }})</h2>
                     <template v-for="info in modal.list">
-                        <h3>{{ getLenTxt(info, 'playerName', 'playerEnName') }}</h3>
+                        <h3 class="display-flex">
+                            <p class="display-flex-text">{{ getLenTxt(info, 'playerName', 'playerEnName') }}</p>
+                            <p class="udpItem"  :class="getUdp('class' , info.accuSumUnderpar)">
+                                {{ getUdp('socre' , info.accuSumUnderpar) }}
+                            </p>
+                        </h3>
                         <dl>
                             <dt>{{ info.score == 0 ? '-' : info.score }}</dt>
                             <dd> <span v-for=" sinfo in info.shotList" :class="'shotItem shot_' + getShotTxt(sinfo.field)">{{ getShotTxt(sinfo.field) }}</span> </dd>

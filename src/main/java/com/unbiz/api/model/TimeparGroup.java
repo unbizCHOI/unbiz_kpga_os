@@ -45,8 +45,14 @@ public class TimeparGroup {
 
     @ApiModelProperty(name = "score", value = "스코어", example = "3")
     private Integer score;
+
+    @ApiModelProperty(name = "accuSumUnderpar", value = "누적언더파", example = "3")
+    private Integer accuSumUnderpar;
+    
     
     @ApiModelProperty(name = "shotList", value = "샷정보")
     private List<Map> shotList;
+    
+    
 
 }
