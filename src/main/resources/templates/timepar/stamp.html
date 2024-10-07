@@ -281,7 +281,10 @@
                     <h2>Group {{ modal.groupNo }} / Hole {{ modal.holeNo }} ( Par {{ course['holePar' + modal.holeNo] }})</h2>
                     <template v-for="info in modal.list">
                         <h3 class="display-flex">
-                            <p class="display-flex-text">{{ getLenTxt(info, 'playerName', 'playerEnName') }}</p>
+                            <p class="display-flex-text">{{ getLenTxt(info, 'playerName', 'playerEnName') }}
+                                ({{ info.accuRank }}위)
+                            </p>
+
                             <p class="udpItem"  :class="getUdp('class' , info.accuSumUnderpar)">
                                 {{ getUdp('socre' , info.accuSumUnderpar) }}
                             </p>
