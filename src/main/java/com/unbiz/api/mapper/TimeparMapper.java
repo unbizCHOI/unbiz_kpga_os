@@ -36,5 +36,7 @@ public interface TimeparMapper {
     List<Map> selectHoleParCnt(Map parameterMap);
     Integer updateAccuSum(Map parameterMap);
     List<Map> selectHoleInTime(Map parameterMap);
+    Integer updateTimeparHole(Map parameterMap);
+
 
 }

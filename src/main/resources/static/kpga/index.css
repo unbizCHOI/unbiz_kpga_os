@@ -1,0 +1,61 @@
+body, html{ width:100%; }
+body, h1, h2, h3, h4, h5, h6, span, div, p, button{ padding:0; margin:0; font-size:15px; color:#333; }
+
+.flag{ position:relative; display:inline-block; vertical-align:middle; width:1rem; height:.688rem; background-repeat:no-repeat; background-size:100% auto; border:.063rem solid #e4e6e9; }
+.textLeft{ text-align:left; }
+.titlelist{ position:absolute; left:210px; }
+i.ic-titlelist{ width:1.875rem; height:0.625rem; background:url(./images/ic-titlelist.b8a26ecd.png) no-repeat; display:inline-block; background-size:cover; }
+
+.leadTb { position:relative; width:1440px; margin:30px auto; }
+.leadTb .scrollHead{ position:relative; z-index:99 }
+.leadTb .scrollBody{ position:absolute; top:0; left:0; height:500px; overflow-y:auto; border:1px solid #ddd; overflow-x:hidden; }
+.leadTb .scrollBody table tr + tr{ border-top:1px solid #ddd }
+.leadTb .scrollBody::-webkit-scrollbar{ width:1px; }
+.leadTb .scrollBody::-webkit-scrollbar-thumb{ background-color:#06493d; border-radius:10px; }
+.leadTb .scrollBody::-webkit-scrollbar-track{ border-radius:10px; }
+
+.leadTb table{ border-collapse: collapse; width:100%; table-layout:fixed; }
+.leadTb table tr:hover{ background:#f5f5f5 }
+.leadTb table th, .leadTb table td{ padding:8px 5px; }
+.leadTb table th{ background:#06493d; border-left:1px solid #1e5b50; border-top:1px solid #1e5b50; color:#fff; line-height:1.4; }
+.leadTb table td{ text-align:center; font-size:.875rem; font-weight:600 }
+.leadTb table .total-box span{ display:block; padding:.125rem 0 0.0625rem 0; border-radius:.125rem; font-size:0.875rem; color:#fff; }
+.leadTb table .redBox span{ background:#f82217 }
+.leadTb table .blackBox span{ background:#161616 }
+.leadTb table .blueBox span{ background:#0c4bff }
+.leadTb table .playerNm{ position:relative; text-align: left; }
+.leadTb table .playerNm span{ font-size:.9375rem; }
+.leadTb table .red{ color:#f82217 }
+.leadTb table .black{ color:#161616 }
+.leadTb table .blue{ color:#0c4bff }
+
+.ubDownIc i{ display:inline-block; width:.4375rem; height:1rem; background-repeat:no-repeat; background-size:cover; font-style:normal }
+.ubDownIc i.ic-align-up{ background-image:url(images/ico/ic-align-up-red.db08bfed.svg); }
+.ubDownIc i.ic-align-down{ background-image:url(images/ico/ic-align-down-blue.f5643119.svg); }
+
+/* table width */
+.ubDownIcBox{ display:flex; align-items:center; width:100%; gap:5px; padding-left:12px; }
+.ubDownIcBox span{ font-size:.8125rem }
+.leadTb table tr:nth-child(1) th:nth-child(13){ width:12%; }
+.leadTb table tr:nth-child(1) th:nth-child(14){ width:13%; }
+.leadTb table tr:nth-child(1) th:nth-child(1), .leadTb table td:nth-child(1){ width:3%; }
+.leadTb table tr:nth-child(1) th:nth-child(2), .leadTb table td:nth-child(2){ width:3%; }
+.leadTb table tr:nth-child(1) th:nth-child(3), .leadTb table td:nth-child(3){ width:3%; }
+.leadTb table tr:nth-child(1) th:nth-child(4), .leadTb table td:nth-child(4){ width:25%; }
+.leadTb table tr:nth-child(1) th:nth-child(5), .leadTb table td:nth-child(5){ width:3%; }
+.leadTb table tr:nth-child(1) th:nth-child(6), .leadTb table td:nth-child(6){ width:4%; }
+.leadTb table tr:nth-child(1) th:nth-child(7), .leadTb table td:nth-child(7){ width:4%; }
+.leadTb table tr:nth-child(1) th:nth-child(8), .leadTb table td:nth-child(8){ width:4%; }
+.leadTb table tr:nth-child(1) th:nth-child(9), .leadTb table td:nth-child(9){ width:4%; }
+.leadTb table tr:nth-child(1) th:nth-child(10), .leadTb table td:nth-child(10){ width:4%; }
+.leadTb table tr:nth-child(1) th:nth-child(11), .leadTb table td:nth-child(11){ width:4%; }
+\.leadTb table tr:nth-child(1) th:nth-child(12), .leadTb table td:nth-child(12){ width:4%; }
+.leadTb table tr:nth-child(2) th:nth-child(n+1):nth-child(-n+4){ width:auto; }
+.leadTb table tr:nth-child(2) th:nth-child(5){ width:2%; }
+.leadTb table tr:nth-child(2) th:nth-child(14), .leadTb table td:nth-child(14){ width:4%; }
+.leadTb table tr:nth-child(2) th:nth-child(15), .leadTb table td:nth-child(15){ width:4%; }
+.leadTb table tr:nth-child(2) th:nth-child(16), .leadTb table td:nth-child(16){ width:4%; }
+.leadTb table tr:nth-child(2) th:nth-child(17), .leadTb table td:nth-child(17){ width:3%; }
+
+.leadTb table tbody td:nth-child(n+7):nth-child(-n+11){ background:#f9f9f9; }
+.leadTb table tbody td:nth-child(12){ background:#f2f2f2 }

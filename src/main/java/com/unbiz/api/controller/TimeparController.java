@@ -53,6 +53,12 @@ public class TimeparController  extends BaseController {
         return success(timeparService.insertTimeparHole(parameterMap));
     }
 
+    @RequestMapping(value = "/excel/before/save.tf")
+    public ResultVO excelBeforeSave(@RequestBody Map parameterMap) {
+        return success(timeparService.updateTimeparHole(parameterMap));
+    }
+
+
     @RequestMapping(value = "/stamp", method = {RequestMethod.GET})
     public ModelAndView page(Model model) {
         return new ModelAndView( basePath + "stamp" );

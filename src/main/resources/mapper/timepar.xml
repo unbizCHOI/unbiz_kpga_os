@@ -118,6 +118,33 @@
         , #{t.hole10}, #{t.hole11}, #{t.hole12}, #{t.hole13}, #{t.hole14}, #{t.hole15}, #{t.hole16}, #{t.hole17}, #{t.hole18}) </foreach>
     </insert>
 
+    <update id="updateTimeparHole">
+        <foreach collection="data" item="t" separator=" ">
+        UPDATE kpga.tb_timepar_stand t1
+        SET
+           hole1  = CASE WHEN #{t.hole1 } is null THEN hole1  ELSE #{t.hole1 } END
+          ,hole2  = CASE WHEN #{t.hole2 } is null THEN hole2  ELSE #{t.hole2 } END
+          ,hole3  = CASE WHEN #{t.hole3 } is null THEN hole3  ELSE #{t.hole3 } END
+          ,hole4  = CASE WHEN #{t.hole4 } is null THEN hole4  ELSE #{t.hole4 } END
+          ,hole5  = CASE WHEN #{t.hole5 } is null THEN hole5  ELSE #{t.hole5 } END
+          ,hole6  = CASE WHEN #{t.hole6 } is null THEN hole6  ELSE #{t.hole6 } END
+          ,hole7  = CASE WHEN #{t.hole7 } is null THEN hole7  ELSE #{t.hole7 } END
+          ,hole8  = CASE WHEN #{t.hole8 } is null THEN hole8  ELSE #{t.hole8 } END
+          ,hole9  = CASE WHEN #{t.hole9 } is null THEN hole9  ELSE #{t.hole9 } END
+          ,hole10 = CASE WHEN #{t.hole10} is null THEN hole10 ELSE #{t.hole10} END
+          ,hole11 = CASE WHEN #{t.hole11} is null THEN hole11 ELSE #{t.hole11} END
+          ,hole12 = CASE WHEN #{t.hole12} is null THEN hole12 ELSE #{t.hole12} END
+          ,hole13 = CASE WHEN #{t.hole13} is null THEN hole13 ELSE #{t.hole13} END
+          ,hole14 = CASE WHEN #{t.hole14} is null THEN hole14 ELSE #{t.hole14} END
+          ,hole15 = CASE WHEN #{t.hole15} is null THEN hole15 ELSE #{t.hole15} END
+          ,hole16 = CASE WHEN #{t.hole16} is null THEN hole16 ELSE #{t.hole16} END
+          ,hole17 = CASE WHEN #{t.hole17} is null THEN hole17 ELSE #{t.hole17} END
+          ,hole18 = CASE WHEN #{t.hole18} is null THEN hole18 ELSE #{t.hole18} END
+        WHERE t1.game_id = #{gameId} AND t1.round_no = #{roundNo} AND t1.group_no = #{t.groupNo};
+        </foreach>
+
+    </update>
+
 
 
 

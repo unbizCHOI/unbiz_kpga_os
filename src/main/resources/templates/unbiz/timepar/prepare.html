@@ -28,6 +28,7 @@
                         excel : {
                             gameId : '',
                             roundNo: '1',
+                            leftDate : '',
                             data : null,
                         },
                     }
@@ -40,6 +41,13 @@
                     self.doBase().getTimeSetInfo();
                 },
                 methods: {
+                    down : function (path, nm) {
+                        const element = document.createElement('a');
+                        element.setAttribute('href', '/timepar/'+path);
+                        element.setAttribute('download', nm);
+                        element.click();
+                        document.body.removeChile(element);
+                    },
                     getGameDate : function (info) {
                         if(!info.gameOpenDate) return '';
                         return moment(info.gameOpenDate).format('MM.DD') + '~' +  moment(info.gameOpenDate).format('DD');
@@ -101,10 +109,33 @@
                                 self.timeParInfo = data;
                             },
                             saveBefore : function () {
-                                self.excel.roundNo = self.gameInfo.roundNo;
-                                self.excel.gameId = self.gameInfo.gameId;
-                                let resp = doAjax('/timepar/excel/save.tf', self.excel);
-                                alert('처리 되었습니다.');
+                                let param = {
+                                    roundNo : self.gameInfo.roundNo,
+                                    gameId : self.gameInfo.gameId,
+                                    data : [],
+                                }
+                                
+                                self.excel.data.forEach(function (e) {
+                                    let group = {
+                                        groupNo : e.groupNo,
+                                    }
+                                    for(let i = 1; i < 19; i++){
+                                        let hole = e['hole'+i];
+                                        if(hole){
+                                            if(hole.length == 4){
+                                                group['hole'+i] = self.excel.leftDate + ' 0' + hole+ ':00';
+                                            } else {
+                                                group['hole'+i] = self.excel.leftDate + ' ' + hole+ ':00';
+                                            }
+
+                                        }
+                                    }
+                                    param.data.push(group);
+                                });
+                                let resp = doAjax('/timepar/excel/before/save.tf',param);
+                                if(resp){
+                                    alert('처리 되었습니다.');
+                                }
                             },
                             saveTimePar : function () {
                                 self.timeParInfo.gameId = self.gameInfo.gameId;
@@ -207,19 +238,27 @@
             <table>
                 <colgroup>
                     <col width="20%">
-                    <col width="60%">
+                    <col width="30%">
+                    <col width="30%">
                     <col width="20%">
                 </colgroup>
                 <tbody>
                     <tr>
                         <th>KPGA</th>
-                        <td> <input id="excelFileTimePar" type="file" onchange="excel.readTimePar(app.doExcel().readTimePar)"> </td>
+                        <td colspan="2"> <input id="excelFileTimePar" type="file" onchange="excel.readTimePar(app.doExcel().readTimePar)"> </td>
                         <td> <button class="saveBtn" @click="doExcel().saveTimePar()">저장</button> </td>
                     </tr>
                     <tr>
-                        <th>기존</th>
+                        <th>잔여</th>
                         <td> <input class="form-control" id="excelFile" type="file" onchange="excel.read(app.doExcel().readBefore)"> </td>
+                        <td> <input class="form-control" type="text" v-model="excel.leftDate"> </td>
                         <td> <button class="saveBtn" @click="doExcel().saveBefore()">저장</button> </td>
+                    </tr>
+                    <tr>
+                        <th>잔여관련</th>
+                        <td><button class="saveBtn" @click="down('left_timepar.xlsx','left_timepar.xlsx')">잔여 엑셀 형식</button> </td>
+                        <td> <button class="saveBtn" @click="down('left_timepar.pptx','타이파_잔여시간업로드방법_v.0.0.1.pptx')">설명서</button></td>
+                        <td>  </td>
                     </tr>
                 </tbody>
             </table>

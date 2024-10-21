@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unbiz.api.mapper.KpgaMapper">
+    <select id="selectLeaderboard" parameterType="Map" resultType="Map">
+        /*selectLeaderboard*/
+        SELECT
+             t1.game_id                 ,t1.round_no
+            ,CASE
+                WHEN t1.accu_rank IS NOT NULL THEN t1.accu_rank
+              --  WHEN t2.game_giveup_type IS NOT NULL THEN -1
+                ELSE 0
+                END accu_rank
+             ,CASE t1.round_no
+                    WHEN 1 THEN 0
+                    WHEN 2 THEN r1_rank - r2_rank
+                    WHEN 3 THEN r2_rank - r3_rank
+                    WHEN 4 THEN r4_rank - r4_rank
+                    ELSE 0 END          rank_up_dn
+            ,t2.player_nation_code      ,t2.player_name         ,IFNULL(t4.use_yn, 'N') is_titlelist
+            ,t1.accu_sum_underpar       ,t1.udpar_sum_tot       ,t1.round_end_yn
+            ,t3.r1_score                ,t3.r2_score            ,t3.r3_score
+            ,t3.r4_score                ,t3.accu_sum_score      ,IFNULL(t5.point_ranking, 0)  point_ranking
+            ,IFNULL(t5.accu_point, 0)   accu_point              ,t6.start_in_out
+            ,REGEXP_REPLACE(t7.code_text, ".*(DQ|WD|RTD|Cut).*", '\\1') as exception_type_nm
+            ,t2.member_id               ,t2.player_class_type
+        FROM kpga_db.game_player t2
+        LEFT OUTER JOIN kpga_db.game_score t1 ON t1.game_id = t2.game_id AND t1.member_id = t2.member_id AND t1.round_no = #{roundNo}
+        LEFT OUTER JOIN (
+            SELECT
+                t0.member_id
+                 ,SUM(CASE WHEN t0.round_no = 1 THEN t0.accu_rank ELSE 0 END ) r1_rank     ,SUM(CASE WHEN t0.round_no = 1 THEN t0.score_sum_tot ELSE 0 END ) r1_score
+                 ,SUM(CASE WHEN t0.round_no = 2 THEN t0.accu_rank ELSE 0 END ) r2_rank     ,SUM(CASE WHEN t0.round_no = 2 THEN t0.score_sum_tot ELSE 0 END ) r2_score
+                 ,SUM(CASE WHEN t0.round_no = 3 THEN t0.accu_rank ELSE 0 END ) r3_rank     ,SUM(CASE WHEN t0.round_no = 3 THEN t0.score_sum_tot ELSE 0 END ) r3_score
+                 ,SUM(CASE WHEN t0.round_no = 4 THEN t0.accu_rank ELSE 0 END ) r4_rank     ,SUM(CASE WHEN t0.round_no = 4 THEN t0.score_sum_tot ELSE 0 END ) r4_score
+                 ,SUM(t0.score_sum_tot) accu_sum_score
+            FROM kpga_db.game_score t0
+            WHERE t0.game_id = #{gameId}
+            GROUP BY t0.member_id
+            ) t3 ON t2.member_id = t3.member_id
+         LEFT OUTER JOIN kpga_db.sponsor_player t4 ON t2.member_id = t4.member_id AND t4.sponsor_id = '0072' AND t4.use_yn = 'Y' AND t4.sponsor_type = 'BS'
+         LEFT OUTER JOIN kpga_db.game_year_point t5 ON t2.member_id = t5.member_id AND t5.game_year = '2024' AND t5.tour_id = '11' AND t5.point_type = '0'
+         LEFT OUTER JOIN kpga_db.game_round_starttime t6 ON t1.game_id = t6.game_id AND t1.round_no = t6.round_no AND t1.start_time_id = t6.start_time_id
+         LEFT OUTER JOIN kpga_db.sys_cmm_cd t7 ON t2.game_giveup_type = t7.code_value AND t7.group_id = 'exception_type'
+         LEFT OUTER JOIN kpga_db.game_score t8 ON t8.game_id = t2.game_id AND t8.member_id = t2.member_id AND t8.round_no = '2'
+         LEFT OUTER JOIN kpga_db.game_round_starttime t9 ON t8.game_id = t9.game_id AND t8.round_no = t9.round_no AND t8.start_time_id = t9.start_time_id
+        WHERE t2.game_id = #{gameId}
+        ORDER BY t2.game_giveup_type IS NOT NULL, t1.accu_rank IS NULL  ,t1.accu_sum_underpar, t6.start_time ASC , t6.start_in_out ASC ,t1.start_tee_off_order ASC
+               ,(t1.score_13+t1.score_14+t1.score_15+t1.score_16+t1.score_17+t1.score_18) ASC
+               ,(t1.score_16+t1.score_17+t1.score_18) ASC
+               ,t1.score_18 ASC
+               ,t1.score_17 ASC
+               ,t8.accu_sum_underpar, t9.start_time ASC , t9.start_in_out ASC ,t8.start_tee_off_order ASC
+               ,(t8.score_13+t8.score_14+t8.score_15+t8.score_16+t8.score_17+t8.score_18) ASC
+               ,(t8.score_16+t8.score_17+t8.score_18) ASC
+               ,t8.score_18 ASC
+               ,t8.score_17 ASC
+    </select>
+
+    <select id="selectStandPoint" parameterType="Map" resultType="Map">
+        /*selectStandPoint*/
+        SELECT
+            t1.dsb_rank
+             ,t1.ofc_dsb_point
+        FROM kpga_db.game_point_dsbtbl t1
+        WHERE t1.game_id = #{gameId}
+          AND t1.point_type = 0
+    </select>
+
+
+    <select id="selectPlayerPoint" parameterType="Map" resultType="Map">
+        /*selectPlayerPoint*/
+        SELECT
+            t1.accu_point
+             ,t1.point_ranking
+             ,t1.member_id
+        FROM kpga_db.game_year_point t1
+        WHERE t1.game_year = '2024'
+          AND t1.point_type = 0
+          AND t1.tour_id = '11'
+        ORDER BY t1.point_ranking;
+    </select>
+
+
+
+
+</mapper>

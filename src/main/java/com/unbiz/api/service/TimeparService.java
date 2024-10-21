@@ -48,5 +48,5 @@ public class TimeparService {
 
     public List<Map> selectHoleInTime(Map parameterMap){ return timeparMapper.selectHoleInTime(parameterMap); }
 
-
+    public Integer updateTimeparHole(Map parameterMap){ return timeparMapper.updateTimeparHole(parameterMap); }
 }

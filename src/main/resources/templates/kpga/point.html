@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{thymeleaf/layout/default}">
+<th:block layout:fragment="css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/kpga/index.css">
+    <link rel="stylesheet" href="/kpga/flag.css">
+    <style>
+        .top_div {display: flex;flex-direction: column-reverse; align-items: center;}
+        [v-cloak] { display: none; }
+    </style>
+</th:block>
+<th:block layout:fragment="script">
+    <script type="text/javascript">
+
+        // 포인트 계산 밑 순위 T  생략 추가
+        let app = '';
+        let SECOND = 1000;
+        let MINUTE = 60;
+        $(document).ready(function () {
+            app = new Vue({
+                el: "#app",
+                data: function () {
+                    return {
+                        search : {
+                            gameId : '',
+                            roundNo : '',
+                        },
+                        gameInfo : {},
+                        points : [],
+                        pointStandPlayers :{},
+                        pointNewPlayers :[],
+                        players : [],
+                        pointSum : {},
+                    }
+                },
+                created: function () {
+                    const self = this;
+                    let resp = doAjax('/timepar/game.tf', {});
+                    self.search.gameId = resp.data.gameId;
+                    self.search.roundNo = resp.data.roundNo;
+
+                    resp = doAjax('/api/game.tf', { apcYear : new Date().getFullYear(), tourId : '11', gameId : self.search.gameId});
+                    self.gameInfo = resp.data[0];
+
+                    resp = doAjax('/kpga/stand/point.tf', self.search);
+                    self.points = [0];
+                    resp.stand.forEach(function (p) {
+                        self.points.push(Number(p.ofc_dsb_point));
+                    })
+                    for(let i = 0; i < 40; i++){
+                        self.points.push(5);
+                    }
+                    self.pointStandPlayers = {};
+                    resp.player.forEach(function (p) {
+                        self.pointStandPlayers['M' + p.member_id] = {stand : Number(p.accu_point), add : 0, total : Number(p.accu_point), pointRank : 0};
+                    });
+
+                    self.getList();
+                    //self.timer.woker = setInterval(function(){self.getList();}, 10 * SECOND);
+                    //self.timer.timer = setInterval(function(){self.timer.time++;}, SECOND);
+                },
+                filters : {
+                    abs: function (value) {
+                        let num = new Number(value);
+                        return Math.abs(num);
+                    },
+                    putHi : function (value) {
+                        let num = new Number(value);
+                        return num == 0 ? '-' : num;
+                    },
+                    currency: function (value) {
+                        let num = new Number(Number(value).toFixed(0));
+                        return num.toString().replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1,")
+                    },
+                    currencyHi: function (value) {
+                        let num = new Number(Number(value).toFixed(0));
+                        return num == 0 ? '-' : num.toString().replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1,")
+                    },
+                },
+                methods: {
+                    getList : function() {
+                        let self = this;
+                        let resp =  doAjax('/kpga/leaderboard.tf', self.search);
+
+                        let pointSum = {};
+                        resp.forEach(function (p,i) {
+                            let rank = pointSum['R'+p.accu_rank];
+                            if(!rank){
+                                rank = { rank : Number(p.accu_rank) ,cnt : 0 ,memberIds : [], points :[], pointTotal : 0, point : 0}
+                            }
+                            let point = self.points[Number(i+1)];
+                            rank.cnt++;
+                            rank.memberIds.push(p.member_id);
+                            rank.points.push(point);
+                            rank.pointTotal += point;
+                            rank.point = rank.pointTotal/rank.cnt;
+                            pointSum['R'+p.accu_rank] = rank;
+                        });
+
+                        console.log('pointSum' , pointSum)
+
+                        let pointNewPlayers = $.extend({}, self.pointStandPlayers);
+                        console.log('pointNewPlayers11' , pointNewPlayers)
+                        for(let key in pointSum){
+                            let rank = pointSum[key];
+                            if(rank.rank != 0 && rank.rank <= 60){
+                                rank.memberIds.forEach(function (p) {
+                                    if(pointNewPlayers['M' + p]){
+                                        pointNewPlayers['M' + p].add = rank.point;
+                                        pointNewPlayers['M' + p].total = pointNewPlayers['M' + p].stand + rank.point;
+                                    } else {
+                                        pointNewPlayers['M' + p] = {stand : 0, add : rank.point, total : rank.point , pointRank : 0};
+                                    }
+                                })
+                            } else {
+                                rank.memberIds.forEach(function (p) {
+                                    if (!pointNewPlayers['M' + p]) {
+                                        pointNewPlayers['M' + p] = {stand: 0, add: 0, total: 0, pointRank: 0};
+                                    }
+                                })
+                            }
+                        }
+                        console.log('pointNewPlayers2' , pointNewPlayers)
+                        const entries = Object.entries(pointNewPlayers);
+                        entries.sort((a, b) => b[1].total - a[1].total);
+                        entries.forEach((entry, index) => {
+                            const key = entry[0];
+                            if(pointNewPlayers[key].total > 0 ){
+                                pointNewPlayers[key].pointRank = index + 1;
+                            }
+
+                        });
+
+                        let rankIdx = 0;
+                        self.players = resp.map(function (p) {
+                            let pointNewPlayer = pointNewPlayers['M'+p.member_id];
+                            p['new_point_ranking'] = pointNewPlayer.pointRank ;
+                            p['new_accu_point'] =  pointNewPlayer.total;
+                            let rank_txt = '';
+                            if(p.exception_type_nm){
+                                rank_txt = p.exception_type_nm;
+                            } else if(self.search.roundNo > 2 && p.accu_rank == 0){
+                                rank_txt = 'CUT';
+                            } else if(rankIdx == p.accu_rank){
+                                rank_txt = '';
+                            } else {
+                                rank_txt = ( pointSum['R'+p.accu_rank].cnt > 0 ? 'T' : '' ) + p.accu_rank;
+                            }
+                            //p['rank_txt'] = p.exception_type_nm ? p.exception_type_nm :rankIdx == p.accu_rank ? '' : ( pointSum['R'+p.accu_rank].cnt > 0 ? 'T' : '' ) + p.accu_rank
+                            p['rank_txt'] = rank_txt;
+                            rankIdx = p.accu_rank;
+                            return p;
+                        })
+                        self.pointSum = pointSum;
+
+                    },
+                    getUdpAccuClass : function (val) {
+                        let txt = '';
+                        if(val < 0){
+                            txt = ' redBox ';
+                        } else if(val == 0){
+                            txt = ' blackBox ';
+                        } else {
+                            txt = ' blueBox ';
+                        }
+                        return txt;
+                    },
+                    getUdpClass : function (val) {
+                        let txt = '';
+                        if(val < 0){
+                            txt = ' red ';
+                        } else if(val == 0){
+                            txt = ' black ';
+                        } else {
+                            txt = ' blue ';
+                        }
+                        return txt;
+                    },
+                    getUdpTxt : function (val) {
+                        let txt = '';
+                        if(val < 0){
+                            txt = val;
+                        } else if(val == 0){
+                            txt = 'E';
+                        } else {
+                            txt = '+'+val;
+                        }
+                        return txt;
+                    },
+                }
+            });
+        });
+    </script>
+</th:block>
+</head>
+
+<body layout:fragment="content" >
+    <div id="app" v-cloak class="top_div">
+        <div class="wrap">
+            <div class="leadTb">
+                <div class="scrollHead">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th rowspan="2">순위</th>
+                            <th rowspan="2" class="ubDownIc">
+                                <i class="ic-align-up"></i>
+                                <i class="ic-align-down"></i>
+                            </th>
+                            <th rowspan="2">국가</th>
+                            <th rowspan="2">선수명</th>
+                            <th rowspan="2">합계</th>
+                            <th rowspan="2">오늘 {{search.roundNo}}R</th>
+                            <th rowspan="2">Thru</th>
+                            <th rowspan="2">1R</th>
+                            <th rowspan="2">2R</th>
+                            <th rowspan="2">3R</th>
+                            <th rowspan="2">4R</th>
+                            <th rowspan="2">Total</th>
+                            <th colspan="2">현재 포인트</th>
+                            <th colspan="3">예상 포인트</th>
+                        </tr>
+                        <tr>
+                            <th>순위</th>
+                            <th>포인트</th>
+                            <th>예상</th>
+                            <th>포인트</th>
+                            <th class="ubDownIc">
+                                <i class="ic-align-up"></i>
+                                <i class="ic-align-down"></i>
+                            </th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="scrollBody">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th rowspan="2">순위</th>
+                            <th rowspan="2" class="ubDownIc">
+                                <i class="ic-align-up"></i>
+                                <i class="ic-align-down"></i>
+                            </th>
+                            <th rowspan="2">국가</th>
+                            <th rowspan="2">선수명</th>
+                            <th rowspan="2">합계</th>
+                            <th rowspan="2">오늘 {{search.roundNo}}R</th>
+                            <th rowspan="2">Thru</th>
+                            <th rowspan="2">1R</th>
+                            <th rowspan="2">2R</th>
+                            <th rowspan="2">3R</th>
+                            <th rowspan="2">4R</th>
+                            <th rowspan="2">Total</th>
+                            <th colspan="2">현재 포인트</th>
+                            <th colspan="3">예상 포인트</th>
+                        </tr>
+                        <tr>
+                            <th>순위</th>
+                            <th>포인트</th>
+                            <th>예상</th>
+                            <th>포인트</th>
+                            <th class="border">
+                                <i class="ic-align-up"></i>
+                                <i class="ic-align-down"></i>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="player in players">
+                                <td>{{ player.rank_txt }}</td>
+                                <td class="ubDownIc">
+                                    <div v-if="player.rank_up_dn != 0" class="ubDownIcBox">
+                                        <i :class="player.rank_up_dn < 0 ? 'ic-align-down' : 'ic-align-up'"></i>
+                                        <span>{{ player.rank_up_dn | abs}}</span>
+                                    </div>
+                                </td>
+                                <td><i class="flag flag-24x24" :class="player.player_nation_code"></i></td>
+                                <td class="textLeft playerNm">
+                                    <span class="cursor-link name">
+                                        {{ player.player_name }}
+                                        {{ player.player_class_type == 'AMA' ? '(A)' : '' }}
+                                        {{ player.start_in_out == 'IN' ? '*' : '' }}
+                                    </span>
+                                    <span v-if="player.is_titlelist == 'Y'" class="titlelist"><i class="ic-titlelist"></i></span>
+                                </td>
+                                <td v-if="player.accu_sum_underpar" class="total-box" :class="getUdpAccuClass(player.accu_sum_underpar)"><span>{{ getUdpTxt(player.accu_sum_underpar) }}</span></td>
+                                <td v-else>-</td>
+                                <td v-if="player.udpar_sum_tot" class="tdColor"  :class="getUdpClass(player.udpar_sum_tot)">{{ getUdpTxt(player.udpar_sum_tot) }}</td>
+                                <td v-else>-</td>
+
+                                <td class="roundNum">{{ player.round_end_yn }}</td>
+                                <td class="roundNum">{{ player.r1_score | putHi }}</td>
+                                <td class="roundNum">{{ player.r2_score | putHi }}</td>
+                                <td class="roundNum">{{ player.r3_score | putHi }}</td>
+                                <td class="roundNum">{{ player.r4_score | putHi }}</td>
+                                <td class="roundTotal">{{ player.accu_sum_score | putHi }}</td>
+                                <td>{{ player.point_ranking | currencyHi  }}</td>
+                                <td>{{ player.accu_point | currencyHi}}</td>
+                                <td>{{ player.new_point_ranking | currencyHi }}</td>
+                                <td>{{ player.new_accu_point | currencyHi}}</td>
+                                <td class="ubDownIc">
+                                    <div class="ubDownIcBox" v-if="player.point_ranking - player.new_point_ranking != 0">
+                                        <i :class="player.point_ranking - player.new_point_ranking > 0 || (player.point_ranking == 0 && player.new_point_ranking > 0 ) ? 'ic-align-up'  : 'ic-align-down'"></i>
+                                        {{ player.point_ranking - player.new_point_ranking | abs }}
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+        </div>
+        <div>
+            <table>
+                <thead>
+                <tr>
+                    <th>랭킹</th>
+                    <th>선수수</th>
+                    <th>포인트<br/>리스트</th>
+                    <th>적용<br/>포인트</th>
+                    <th>적용<br/>포인트</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="p in pointSum" v-if="p.rank != 0 && p.rank <= 60">
+                    <td style="text-align: center">{{ p.rank }}</td>
+                    <td style="text-align: center">{{ p.cnt }}</td>
+                    <td>{{ p.points }}</td>
+                    <td style="text-align: right">{{ p.pointTotal | currency}}</td>
+                    <td style="text-align: right">{{ p.point | currency }}</td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</body>
+</html>
