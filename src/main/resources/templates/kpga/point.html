@@ -90,17 +90,15 @@
                             }
                             let point = self.points[Number(i+1)];
                             rank.cnt++;
-                            rank.memberIds.push(p.member_id);
+                            if(p.Is_ofc_point == 'Y') rank.memberIds.push(p.member_id);
+
                             rank.points.push(point);
                             rank.pointTotal += point;
                             rank.point = rank.pointTotal/rank.cnt;
                             pointSum['R'+p.accu_rank] = rank;
                         });
 
-                        console.log('pointSum' , pointSum)
-
                         let pointNewPlayers = $.extend({}, self.pointStandPlayers);
-                        console.log('pointNewPlayers11' , pointNewPlayers)
                         for(let key in pointSum){
                             let rank = pointSum[key];
                             if(rank.rank != 0 && rank.rank <= 60){
@@ -120,7 +118,7 @@
                                 })
                             }
                         }
-                        console.log('pointNewPlayers2' , pointNewPlayers)
+
                         const entries = Object.entries(pointNewPlayers);
                         entries.sort((a, b) => b[1].total - a[1].total);
                         entries.forEach((entry, index) => {
@@ -134,8 +132,9 @@
                         let rankIdx = 0;
                         self.players = resp.map(function (p) {
                             let pointNewPlayer = pointNewPlayers['M'+p.member_id];
-                            p['new_point_ranking'] = pointNewPlayer.pointRank ;
-                            p['new_accu_point'] =  pointNewPlayer.total;
+
+                            p['new_point_ranking'] = pointNewPlayer ? pointNewPlayer.pointRank : 0;
+                            p['new_accu_point'] =  pointNewPlayer ? pointNewPlayer.total : 0;
                             let rank_txt = '';
                             if(p.exception_type_nm){
                                 rank_txt = p.exception_type_nm;
@@ -280,13 +279,12 @@
                                     <span class="cursor-link name">
                                         {{ player.player_name }}
                                         {{ player.player_class_type == 'AMA' ? '(A)' : '' }}
-                                        {{ player.start_in_out == 'IN' ? '*' : '' }}
                                     </span>
                                     <span v-if="player.is_titlelist == 'Y'" class="titlelist"><i class="ic-titlelist"></i></span>
                                 </td>
-                                <td v-if="player.accu_sum_underpar" class="total-box" :class="getUdpAccuClass(player.accu_sum_underpar)"><span>{{ getUdpTxt(player.accu_sum_underpar) }}</span></td>
+                                <td v-if="player.accu_sum_score" class="total-box" :class="getUdpAccuClass(player.accu_sum_underpar)"><span>{{ getUdpTxt(player.accu_sum_underpar) }}</span></td>
                                 <td v-else>-</td>
-                                <td v-if="player.udpar_sum_tot" class="tdColor"  :class="getUdpClass(player.udpar_sum_tot)">{{ getUdpTxt(player.udpar_sum_tot) }}</td>
+                                <td v-if="player.score_sum_tot" class="tdColor"  :class="getUdpClass(player.udpar_sum_tot)">{{ getUdpTxt(player.udpar_sum_tot) }}</td>
                                 <td v-else>-</td>
 
                                 <td class="roundNum">{{ player.round_end_yn }}</td>

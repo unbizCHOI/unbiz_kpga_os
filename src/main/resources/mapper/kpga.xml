@@ -18,11 +18,12 @@
                     ELSE 0 END          rank_up_dn
             ,t2.player_nation_code      ,t2.player_name         ,IFNULL(t4.use_yn, 'N') is_titlelist
             ,t1.accu_sum_underpar       ,t1.udpar_sum_tot       ,t1.round_end_yn
+            ,t1.accu_sum_score          ,t1.score_sum_tot
             ,t3.r1_score                ,t3.r2_score            ,t3.r3_score
             ,t3.r4_score                ,t3.accu_sum_score      ,IFNULL(t5.point_ranking, 0)  point_ranking
             ,IFNULL(t5.accu_point, 0)   accu_point              ,t6.start_in_out
             ,REGEXP_REPLACE(t7.code_text, ".*(DQ|WD|RTD|Cut).*", '\\1') as exception_type_nm
-            ,t2.member_id               ,t2.player_class_type
+            ,t2.member_id               ,t2.player_class_type   ,t2.Is_ofc_point
         FROM kpga_db.game_player t2
         LEFT OUTER JOIN kpga_db.game_score t1 ON t1.game_id = t2.game_id AND t1.member_id = t2.member_id AND t1.round_no = #{roundNo}
         LEFT OUTER JOIN (
