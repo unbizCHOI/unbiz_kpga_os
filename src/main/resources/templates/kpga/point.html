@@ -36,8 +36,8 @@
                 created: function () {
                     const self = this;
                     let resp = doAjax('/timepar/game.tf', {});
-                    self.search.gameId = resp.data.gameId;
-                    self.search.roundNo = resp.data.roundNo;
+                    self.search.gameId = '202411000017M';//resp.data.gameId;
+                    self.search.roundNo = 1; //resp.data.roundNo;
 
                     resp = doAjax('/api/game.tf', { apcYear : new Date().getFullYear(), tourId : '11', gameId : self.search.gameId});
                     self.gameInfo = resp.data[0];
@@ -47,8 +47,11 @@
                     resp.stand.forEach(function (p) {
                         self.points.push(Number(p.ofc_dsb_point));
                     })
+
+
                     for(let i = 0; i < 40; i++){
-                        self.points.push(5);
+                        let basePoint = self.search.gameId == '202411000010M'  ? 6.5 : 5;
+                        self.points.push(basePoint);
                     }
                     self.pointStandPlayers = {};
                     resp.player.forEach(function (p) {
@@ -89,6 +92,7 @@
                                 rank = { rank : Number(p.accu_rank) ,cnt : 0 ,memberIds : [], points :[], pointTotal : 0, point : 0}
                             }
                             let point = self.points[Number(i+1)];
+
                             rank.cnt++;
                             if(p.Is_ofc_point == 'Y') rank.memberIds.push(p.member_id);
 
@@ -99,9 +103,10 @@
                         });
 
                         let pointNewPlayers = $.extend({}, self.pointStandPlayers);
+                        let cutCnt = self.search.gameId == '202411000010M'  ? 65 : 60;
                         for(let key in pointSum){
                             let rank = pointSum[key];
-                            if(rank.rank != 0 && rank.rank <= 60){
+                            if(rank.rank != 0 && rank.rank <= cutCnt){
                                 rank.memberIds.forEach(function (p) {
                                     if(pointNewPlayers['M' + p]){
                                         pointNewPlayers['M' + p].add = rank.point;

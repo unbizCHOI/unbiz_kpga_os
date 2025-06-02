@@ -308,6 +308,49 @@
         ORDER BY t1.reg_dttm
     </select>
 
+    <select id="selectWhistle" resultType="Map">
+        /**selectWhistle*/
+        /**휫슬 조회*/
+        SELECT
+            t1.whistle_seq
+            ,t1.game_id
+            ,t1.round_no
+            ,t1.group_no
+            ,t1.start_hole
+            ,DATE_FORMAT(t1.start_time  , '%Y-%m-%d %H:%i:%s')  start_time
+            ,t1.end_hole
+            ,DATE_FORMAT(t1.end_time  , '%Y-%m-%d %H:%i:%s')  end_time
+            ,rc_name
+            ,t1.whistle_state
+        FROM kpga.tb_timepar_whistle t1
+        WHERE t1.game_id = #{gameId}
+          AND t1.round_no = #{roundNo}
+        <if test='!@org.springframework.util.ObjectUtils@isEmpty(groupNo)'> AND t1.group_no = #{groupNo} </if>
+        <if test='!@org.springframework.util.ObjectUtils@isEmpty(whistleState)'> AND t1.whistle_state = #{whistleState} </if>
+        ORDER BY 1
+    </select>
 
+    <insert id="insertWhistle" parameterType="Map">
+    /**insertWhistle*/
+    /**휫슬 시작*/
+        INSERT INTO kpga.tb_timepar_whistle (
+            game_id, round_no, group_no, start_hole, rc_name
+        ) VALUES (
+            #{gameId}, #{roundNo}, #{groupNo}, #{startHole}, #{rcName}
+        )
+    </insert>
 
+    <update id="updateWhistle" parameterType="Map">
+    /**updateWhistle*/
+    /**휫슬 수정*/
+        UPDATE kpga.tb_timepar_whistle
+        SET
+            mod_date = NOW()
+            <if test='!@org.springframework.util.ObjectUtils@isEmpty(whistleState)'> ,whistle_state = #{whistleState} </if>
+            <if test='!@org.springframework.util.ObjectUtils@isEmpty(endHole)'>
+                ,end_hole = #{endHole}
+                ,end_time = NOW()
+            </if>
+        WHERE whistle_seq = #{whistleSeq}
+    </update>
 </mapper>

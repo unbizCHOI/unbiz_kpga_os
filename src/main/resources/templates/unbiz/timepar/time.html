@@ -85,7 +85,7 @@
                                 let ampm = 'AM';
                                 let lineArr = [0];
                                 self.timer.time = 0;
-                                self.list = resp.data.map(function (info,idx) {
+                                self.list = resp.data.stamp.map(function (info,idx) {
                                     for (let i = Number(info.start_hole_no); i < Number(info.start_hole_no) + 18; i++) {
                                         let holeNo = i > 18 ? i - 18 : i;
                                         let holeStandTime = moment(self.groupHole['group'+info.group_no]['hole' + holeNo]);

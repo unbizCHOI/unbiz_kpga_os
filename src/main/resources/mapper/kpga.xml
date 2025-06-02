@@ -45,7 +45,7 @@
          LEFT OUTER JOIN kpga_db.game_score t8 ON t8.game_id = t2.game_id AND t8.member_id = t2.member_id AND t8.round_no = '2'
          LEFT OUTER JOIN kpga_db.game_round_starttime t9 ON t8.game_id = t9.game_id AND t8.round_no = t9.round_no AND t8.start_time_id = t9.start_time_id
         WHERE t2.game_id = #{gameId}
-        ORDER BY t2.game_giveup_type IS NOT NULL, t1.accu_rank IS NULL  ,t1.accu_sum_underpar, t6.start_time ASC , t6.start_in_out ASC ,t1.start_tee_off_order ASC
+        ORDER BY t2.game_giveup_type IS NOT NULL, t1.accu_rank IS NULL, t1.accu_sum_score = 0  ,t1.accu_sum_underpar, t6.start_time ASC , t6.start_in_out ASC ,t1.start_tee_off_order ASC
                ,(t1.score_13+t1.score_14+t1.score_15+t1.score_16+t1.score_17+t1.score_18) ASC
                ,(t1.score_16+t1.score_17+t1.score_18) ASC
                ,t1.score_18 ASC

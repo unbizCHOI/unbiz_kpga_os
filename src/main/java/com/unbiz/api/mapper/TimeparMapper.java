@@ -37,6 +37,9 @@ public interface TimeparMapper {
     Integer updateAccuSum(Map parameterMap);
     List<Map> selectHoleInTime(Map parameterMap);
     Integer updateTimeparHole(Map parameterMap);
+    List<Map> selectWhistle(Map parameterMap);
+    Integer insertWhistle(Map parameterMap);
+    Integer updateWhistle(Map parameterMap);
 
 
 }

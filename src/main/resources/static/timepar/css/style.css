@@ -120,6 +120,13 @@ td {
 .outin {
     border-right: 3px double #333;
 }
+.whistle {
+    background: #8a6d3b;
+    color: #ffffff !important
+}
+.whistle a {
+    color: #ffffff !important
+}
 .minus {
     background: #FF9999;
 }
@@ -208,6 +215,21 @@ th a {
 #help span{ padding: 0; width: 60px; display: inline-block; text-align: center; }
 #zoomCont {
 	visibility: hidden;
+}
+
+#whistle {
+    position: absolute;
+    width: 80%;
+    max-width: 400px;
+    background: #fff;
+    margin: auto;
+    top: 5%;
+    left: 0;
+    right: 0;
+    border: 1px solid #999;
+    display: none;
+    padding: 10px;
+    box-shadow:0px 0px 6px 3px rgba(0,0,0,0.5);
 }
 
 /*リーダーボード*/

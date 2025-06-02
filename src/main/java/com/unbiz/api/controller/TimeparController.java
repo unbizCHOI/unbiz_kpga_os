@@ -135,4 +135,9 @@ public class TimeparController  extends BaseController {
         return success(timeparService.selectHoleInTime(parameterMap));
     }
 
+    @RequestMapping(value = "/whistle.tf")
+    public ResultVO whistle(@RequestBody Map parameterMap) {
+        return success(timeparService.saveWhistle(parameterMap));
+    }
+
 }

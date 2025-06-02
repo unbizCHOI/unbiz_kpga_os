@@ -23,8 +23,10 @@
         <where>
             <if test='!@org.springframework.util.ObjectUtils@isEmpty(apcYear)'> AND t1.apc_year  = #{apcYear}</if>
             AND t1.game_type = 'M'
-            <if test='tourId == "11"'>AND t1.tour_id = 11</if>
-            <if test='tourId != "11"'>AND t1.tour_id != 11</if>
+            <if test='@org.springframework.util.ObjectUtils@isEmpty(gameId)'>
+                <if test='tourId != ""'>AND t1.tour_id = #{tourId}</if>
+                <if test='tourId == ""'>AND t1.tour_id != '11'</if>
+            </if>
             <if test='!@org.springframework.util.ObjectUtils@isEmpty(gameId)'> AND t1.game_id = #{gameId} </if>
             <if test='!@org.springframework.util.ObjectUtils@isEmpty(gameName)'> AND t1.game_name LIKE CONCAT('%', #{gameName},'%') </if>
         </where>

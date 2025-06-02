@@ -3,7 +3,6 @@
 <th:block layout:fragment="css">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <link rel="stylesheet" href="/timepar/css/bootstrap.css">
-
     <link rel="stylesheet" href="/timepar/css/style.css">
     <style>
         th.par3{ background-color: #01022b; color: #fff;}
@@ -26,9 +25,12 @@
         .display-flex .udpUp{color: #fff; background: #0c4bff;}
         .display-flex .udpE{color: #fff; background: #000000;}
         #holedetail .shotItem {border-radius: 10px;}
+        #holedetail .bottom-btn{display: flex; justify-content: space-between; margin-top: 70px;}
+        #holedetail .bottom-btn a{width: 30%;}
         .flex-auto{ display:flex; gap:10px; align-items:center; width:60%; }
         .flex-auto p{ margin:0; padding:0; }
         .flex-auto p.ranks{ width:60%; text-align:center; padding:5px; background:#4b545c; color:#fff; border-radius:50px }
+        .btn-block + .btn-block {margin-top: 0px !important;}
     </style>
 
 </th:block>
@@ -42,39 +44,13 @@
                 el: "#app",
                 data: function () {
                     return {
-                        search : {
-                            gameId : '[[${gameId}]]',
-                            roundNo : '[[${roundNo}]]',
-                        },
-                        timeSetInfo : {
-                            outTime : '',
-                            inTime : '',
-                            totalTime : '',
-                            sunrise : '',
-                            sunset : '',
-                        },
-                        gameInfo : {},
-                        course :{},
-                        hole:{},
-                        groupHole : {},
-                        list : [],
-                        timer : {
-                            lastTime : '',
-                            woker : '',
-                            time : 0,
-                            timer : 0,
-                        },
-                        lineArr : [],
-                        zoomNo : '1',
+                        search : { gameId : '[[${gameId}]]', roundNo : '[[${roundNo}]]', },
+                        timeSetInfo : { outTime : '', inTime : '', totalTime : '', sunrise : '', sunset : '', },
+                        timer : { lastTime : '', worker : '', time : 0, timer : 0, },
                         modal : {
-                            isOpen : false,
-                            isOpenHelp : false,
-                            list : [] ,
-                            groupNo : '',
+                            isOpen : false, isOpenHelp : false, isOpenWhistle : false, list : [] , groupNo : '',
                             holeNo : '',
                         },
-                        toTopStyle : '' ,
-                        language : 'ko',
                         lang : {
                             sunset : { en : 'sunset', ko : '일몰' },
                             sunrise : { en : 'sunrise', ko : '일출' },
@@ -96,7 +72,9 @@
                             shot_PS : {en : 'Stroke penalty', ko : '벌타' },
                             shot_PS2 : {en : 'Hole give up', ko : '홀포기' },
                             time : {en : 'YYYY-MM-DD HH:mm:ss', ko : 'YYYY년 MM월 DD일  HH시mm분ss초'}
-                        }
+                        },
+                        gameInfo : {}, course :{}, hole:{}, groupHole : {}, list : [], whistle : [],
+                        lineArr : [], zoomNo : '1',    toTopStyle : '' , language : 'ko',
                     }
                 },
                 created: function () {
@@ -120,8 +98,17 @@
                     });
                     self.groupHole = groupHole;
                     self.getList();
-                    self.timer.woker = setInterval(function(){self.getList();}, 10 * SECOND);
+                    self.timer.worker = setInterval(function(){self.getList();}, 10 * SECOND);
                     self.timer.timer = setInterval(function(){self.timer.time++;}, SECOND);
+                },
+                filters: {
+                    dateFormat: function (value) {
+                        if (!value || value.length < 10) return '';
+                        return moment(value).format('HH:mm');
+                    },
+                    stateNm: function (value) {
+                        return { 'S' : '진행중', 'C' : '취소', 'F' :'종료' }[value];
+                    },
                 },
                 methods: {
                     getList : function() {
@@ -131,7 +118,24 @@
                         let ampm = 'AM';
                         let lineArr = [0];
                         self.timer.time = 0;
-                        self.list = resp.data.map(function (info,idx) {
+                        self.whistle = resp.data.whistle;
+                        self.list = resp.data.stamp.map(function (info,idx) {
+                            let whistleHoles = [];
+                            let lastTime = '';
+                            self.whistle.forEach(function (e) {
+                                if(e.group_no === info.group_no && ['S','F'].includes(e.whistle_state)){
+                                    let groupEndHole = Number(info.start_hole_no) + 17;
+                                    groupEndHole = groupEndHole > 18 ? groupEndHole - 18 : groupEndHole;
+                                    e.end_hole = e.end_hole != -1   ? e.end_hole : groupEndHole;
+                                    lastTime = e.start_time;
+                                    for(let i = e.start_hole; i < 36; i++){
+                                        let holeNo = i > 18 ? i -18 : i;
+                                        whistleHoles.push(holeNo);
+                                        if(holeNo === e.end_hole) break;
+                                    }
+                                }
+                            })
+
                             for (let i = Number(info.start_hole_no); i < Number(info.start_hole_no) + 18; i++) {
                                 let holeNo = i > 18 ? i - 18 : i;
                                 let holeStandTime = moment(self.groupHole['group'+info.group_no]['hole' + holeNo]);
@@ -140,8 +144,15 @@
                                 info['holeStandTime' + holeNo] = holeStandTime.format('HH:mm');
                                 let holeTime = Math.floor(((holeRealTime - holeStandTime)/SECOND/MINUTE));
                                 info['holeTime' + holeNo] = holeTime;
+                                if(whistleHoles.includes(holeNo) && lastTime && holeRealTimeStr){
+                                    info['whistleTime' + holeNo] = '' + Math.floor(((holeRealTime - moment(lastTime))/SECOND/MINUTE));
+                                    lastTime = holeRealTimeStr;
+                                }
+
                                 let className = '';
                                 if( !holeRealTimeStr ) {
+                                } else if(whistleHoles.includes(holeNo)){
+                                    className = 'whistle';
                                 } else if(holeTime == 0 ){
                                     className = 'even';
                                 } else if(holeTime < 0){
@@ -163,7 +174,7 @@
                     },
                     getHoleTime : function (info, holeNo) {
                         let times = info['holeTime' +holeNo ];
-                        return info['hole'+ holeNo +'_end'] ? times : info['holeStandTime' +holeNo ];
+                        return info['hole'+ holeNo +'_end'] ? times : info['holeStandTime' +holeNo];
                     },
                     fnZoom : function (zoomNo) {
                         let self = this;
@@ -173,12 +184,17 @@
                         //if(!isDone) return;
                         let self = this;
                         self.toTopStyle = 'display: block; top:'  +(window.scrollY + 50) + 'px;';
-                        let resp = doAjax('/timepar/shot.tf', $.extend({groupNo : groupNo, holeNo : holeNo},self.search));
+                        let resp = doAjax('/timepar/shot.tf', $.extend({groupNo : groupNo, holeNo : holeNo},self.search))
+                        let find = self.whistle.find(function (e) {
+                            return e.group_no === groupNo && e.whistle_state === 'S';
+                        });
+
                         self.modal = {
                             isOpen : true,
                             list : resp.data ,
                             groupNo : groupNo,
                             holeNo :holeNo,
+                            whistle : find,
                         }
                     },
                     getShotTxt : function (field) {
@@ -226,6 +242,58 @@
                             }
                         }
                         return txt;
+                    },
+                    saveWhistle : function (whistleSeq) {
+                        const self = this;
+                        let param = {
+                            gameId : self.search.gameId,
+                            roundNo : self.search.roundNo,
+                            groupNo : self.modal.groupNo,
+                            startHole : self.modal.holeNo,
+                            endHole : self.modal.holeNo,
+                            rcName : '최정욱',
+                        };
+                        if(whistleSeq > 0){
+                            param['whistleSeq'] = whistleSeq;
+                            param['whistleState'] = 'F';
+                        }
+
+                        let resp = doAjax('/timepar/whistle.tf', param);
+                        if(resp.data === -1){
+                            alert('이미 진행중 그룹 입니다.');
+                        } else {
+                            if(resp.data === 1){
+                                alert('정상 시작 하여습니다.');
+                            } else {
+                                alert('정상 종료 하여습니다.');
+                            }
+                            self.modal.isOpen = false;
+                            self.getList();
+                        }
+                    },
+                    cancelWhistle : function () {
+                        const self = this;
+                        let resp = doAjax('/timepar/whistle.tf', { whistleSeq : self.modal.whistle.whistle_seq, whistleState : 'C', });
+                        if(resp.data === 2){
+                            alert('정상 취소 되었습니다.');
+                            self.modal.isOpen = false;
+                            self.getList();
+                        } else {
+                            alert('처리중 오류가 발생하였습니다.');
+                            console.log(resp)
+                        }
+                    },
+                    isWhistle: function (groupNo) {
+                        const self = this;
+                        let find = self.whistle.find(function (e) {
+                            return e.group_no === groupNo && e.whistle_state === 'S';
+                        });
+                        if(find){
+                            return 'whistle';
+                        } else {
+                            return '-'
+                        }
+
                     }
                 }
             });
@@ -238,13 +306,14 @@
     <div id="app" v-cloak>
         <div id="headerCont">
             <!--<a @click="changeLanguage()" class="btn btn-default help">{{ language == 'ko' ? 'En' : '한' }}</a>-->
+            <a v-if="whistle.length != 0" @click="modal.isOpenWhistle = true;" class="btn btn-default help">Wh</a>
             <a @click="isShowHole()" class="btn btn-default help">？</a>
             <span class="help topText"  style="margin-right: 5px !important;">{{ getLenTxt(lang.sunset, 'ko', 'en') }}:{{ timeSetInfo.sunset }}</span>
             <span class="help topText"  style="margin-right: 5px !important;">{{ getLenTxt(lang.sunrise, 'ko', 'en') }}:{{ timeSetInfo.sunrise }}</span>
         </div>
         <div id="container2">
             <h1>{{ getLenTxt(gameInfo, 'gameName', 'gameEnName') }} {{ search.roundNo }}R</h1>
-            <div id="tourinfo">Pace of Play Time</div>
+            <div >Pace of Play Time</div>
             <div class="btn-group" role="group">
                 <a class="btn btn-primary" role="button" @click="getList()">
                      Refresh <span >{{ timer.time }}</span>
@@ -268,11 +337,15 @@
                                 <th>No</th>
                             </tr>
                             <tr >
-                                <th><a href="##"> {{ info.group_no }} </a></th>
-                                <td v-for="holeNo in 9"  :class="info['className' + holeNo ]" @click="showGroupShot(info.group_no, holeNo, info['hole'+ holeNo +'_end'])"> {{ getHoleTime(info, holeNo)}} </td>
-                                <th><a href="##"> {{ info.group_no }} </a></th>
-                                <td v-for="holeNo in 9"  :class="info['className' + (holeNo+9) ]" @click="showGroupShot(info.group_no, holeNo+9, info['hole'+ (holeNo+9) +'_end'])"> {{ getHoleTime(info, (holeNo+9)) }} </td>
-                                <th><a href="##"> {{ info.group_no }} </a></th>
+                                <th :class="isWhistle(info.group_no)"><a href="##"> {{ info.group_no }} </a></th>
+                                <td v-for="holeNo in 9"  :class="info['className' + holeNo ]" @click="showGroupShot(info.group_no, holeNo, info['hole'+ holeNo +'_end'])">
+                                    {{ getHoleTime(info, holeNo)}} <template v-if="info['whistleTime' + holeNo]">/{{ info['whistleTime' + holeNo] }}</template>
+                                </td>
+                                <th :class="isWhistle(info.group_no)"><a href="##"> {{ info.group_no }} </a></th>
+                                <td v-for="holeNo in 9"  :class="info['className' + (holeNo+9) ]" @click="showGroupShot(info.group_no, holeNo+9, info['hole'+ (holeNo+9) +'_end'])">
+                                    {{ getHoleTime(info, (holeNo+9)) }} <template v-if="info['whistleTime' + (holeNo+9)]">/{{ info['whistleTime' + (holeNo+9)] }}</template>
+                                </td>
+                                <th :class="isWhistle(info.group_no)"><a href="##"> {{ info.group_no }} </a></th>
                             </tr>
                         </template>
                     </tbody>
@@ -288,10 +361,9 @@
                             <div class="flex-auto">
                                 <p class="ranks">{{ info.accuRank }}위</p>
                                 <p class="udpItem"  :class="getUdp('class' , info.accuSumUnderpar)">
-                                    {{ getUdp('socre' , info.accuSumUnderpar) }}
+                                    {{ getUdp('score' , info.accuSumUnderpar) }}
                                 </p>
                             </div>
-
                         </h3>
                         <dl>
                             <dt>{{ info.score == 0 ? '-' : info.score }}</dt>
@@ -299,7 +371,14 @@
                         </dl>
                     </template>
                 </div>
-                <a @click="modal.isOpen = false;" id="holedatailclose" class="btn btn-primary btn-block" style="clear: both;">Close</a>
+                <div class="bottom-btn">
+                    <a v-if="!modal.whistle || modal.whistle =='F'" @click="saveWhistle()"  class="btn btn-primary btn-block"  >Whistle start</a>
+                    <template v-else>
+                        <a  @click="saveWhistle(modal.whistle.whistle_seq)"  class="btn btn-primary btn-block"  >Whistle stop</a>
+                        <a  @click="cancelWhistle()"  class="btn btn-primary btn-block"  >Whistle cancel</a>
+                    </template>
+                    <a @click="modal.isOpen = false;"  class="btn btn-danger btn-block"  >Close</a>
+                </div>
             </div>
 
             <div v-if="modal.isOpenHelp" id="help" style="display: block;">
@@ -323,6 +402,41 @@
                 <a @click="modal.isOpenHelp = false;" id="helpclose" class="btn btn-primary btn-block" href="javascript:void(0);" role="button" style="clear: both;">Close</a>
             </div>
 
+            <div v-if="modal.isOpenWhistle" id="whistle" style="display: block;">
+                <h4>Whistle Action Histroy</h4>
+                <table>
+                    <colgroup>
+                        <col width="10%">
+                        <col width="10%">
+                        <col width="10%">
+                        <col width="10%">
+                        <col width="10%">
+                        <col width="10%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>상태</th>
+                            <th>조</th>
+                            <th colspan="2">시작</th>
+                            <th colspan="2">종료</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="info in whistle">
+                            <td>{{ info.whistle_state | stateNm}}</td>
+                            <td>{{ info.group_no }}</td>
+                            <td>{{ info.start_hole }}</td>
+                            <td>{{ info.start_time | dateFormat}}</td>
+                            <td v-if="info.whistle_state != 'F'" colspan="2">-</td>
+                            <template v-else>
+                                <td>{{ info.end_hole }}</td>
+                                <td>{{ info.end_time | dateFormat}}</td>
+                            </template>
+                        </tr>
+                    </tbody>
+                </table>
+                <a @click="modal.isOpenWhistle = false;"  class="btn btn-primary btn-block" href="javascript:void(0);" role="button" style="clear: both;">Close</a>
+            </div>
 
             <div id="zoomCont" class="btn-group btn-group-justified" role="group">
                 <a href="#" :class="'zoom50 btn btn-default ' + (zoomNo == '0.5' ? 'active' : '')" @click="fnZoom('0.5')"  role="button">

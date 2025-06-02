@@ -27,7 +27,7 @@
 				},
 				created: function () {
 					let self = this;
-					let resp = doAjax('/api/game.tf', { apcYear : new Date().getFullYear(), tourId : '12'});
+					let resp = doAjax('/api/game.tf', { apcYear : new Date().getFullYear(), tourId : ''});
 					self.gameList = resp.data;
 				},
 				methods: {
@@ -85,7 +85,7 @@
 					<select v-model="search.gameInfo">
 						<option value=""> 대회 선택 </option>
 						<option v-for="game in gameList" :value="game">
-							{{ game.gameName }} || {{ game.gameOpenDate }}  ~ {{ game.gameCloseDate }} </option>
+							{{game.tourId}} ||{{ game.gameName }} || {{ game.gameOpenDate }}  ~ {{ game.gameCloseDate }} </option>
 					</select>
 					<select v-model="search.roundNo">
 						<option v-for="roundNo in search.gameInfo.gameRoundCnt" :value="roundNo">{{ roundNo }} 라운드</option>
